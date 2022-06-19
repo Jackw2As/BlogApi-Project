@@ -14,9 +14,4 @@
     <ProjectReference Include="..\Models\Domain.csproj" />
     <ProjectReference Include="..\Storage\Storage.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Repository\" />
-  </ItemGroup>
-
 </Project>

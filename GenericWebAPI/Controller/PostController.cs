@@ -2,7 +2,7 @@
 using Domain.Interface;
 using Storage.DatabaseModels;
 
-namespace Application.Post
+namespace Application.Controller
 {
     public class PostController : BaseController<PostModel>
     {

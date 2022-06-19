@@ -1,4 +1,4 @@
-﻿namespace Application.Post
+﻿namespace Application.ViewModel
 {
     public class PostViewModel
     {

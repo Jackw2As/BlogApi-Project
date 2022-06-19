@@ -1,6 +1,6 @@
 ﻿using Domain.Base;
 
-namespace Application.Blog
+namespace Application.ViewModel
 {
     public class BlogViewModel : BaseModel
     {
