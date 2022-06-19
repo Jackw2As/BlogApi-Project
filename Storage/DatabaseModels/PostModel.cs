@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Storage.DatabaseModels
 {
-    public class PostModel
+    public class PostModel : BaseDatabaseModel
     {
     }
 }
