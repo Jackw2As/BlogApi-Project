@@ -18,14 +18,6 @@ namespace Domain.Base
             return new OkObjectResult(Repository.Read(Id)); ;
         }
 
-        //Returns a generic list of Models
-        [HttpGet]
-        public IActionResult Get()
-        {
-            var models = Repository.ReadMultiple();
-            return new OkObjectResult(models);
-        }
-
         //Updates a Model
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
