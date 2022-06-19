@@ -12,16 +12,18 @@ namespace Domain.Base
 
         //Returns a Specific Model
         [HttpGet]
-        public void Get(Guid Id)
+        public IActionResult Get(Guid Id)
         {
-            Repository.Read(Id);
+            var model = Repository.Read(Id);
+            return new OkObjectResult(Repository.Read(Id)); ;
         }
 
         //Returns a generic list of Models
         [HttpGet]
-        public void Get()
+        public IActionResult Get()
         {
-
+            var models = Repository.ReadMultiple();
+            return new OkObjectResult(models);
         }
 
         //Updates a Model
