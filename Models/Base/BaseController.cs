@@ -12,7 +12,7 @@ namespace Domain.Base
 
         //Returns a Specific Model
         [HttpGet]
-        public IActionResult Get(Guid Id)
+        public virtual IActionResult Get(Guid Id)
         {
             var model = Repository.Read(Id);
             return new OkObjectResult(Repository.Read(Id)); ;
@@ -22,7 +22,7 @@ namespace Domain.Base
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Post(T model)
+        public virtual IActionResult Post(T model)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace Domain.Base
 
         //Deletes a Model.
         [HttpDelete]
-        public void Delete(Guid Id)
+        public virtual void Delete(Guid Id)
         {
 
         }
