@@ -8,13 +8,12 @@ namespace Domain.Interface
 {
     public interface IRepository<T> where T : BaseModel
     {
-        void Create(T model);
+        bool Create(T model);
         T Read(Guid Id);
-        void Update(T model);
-        void Delete(T model);
+        bool Update(T model);
+        bool Delete(Guid Id);
 
         IEnumerable<T> ReadMultiple();
-
-        bool Exists(T model);
+        bool Exists(Guid Id);
     }
 }
