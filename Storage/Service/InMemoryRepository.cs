@@ -10,17 +10,17 @@ namespace Storage.Service
 {
     internal class InMemoryRepository<T> : IRepository<T> where T : BaseDatabaseModel
     {
-        public void Create(T model)
+        public bool Create(T model)
         {
             throw new NotImplementedException();
         }
 
-        public void Delete(T model)
+        public bool Delete(Guid Id)
         {
             throw new NotImplementedException();
         }
 
-        public bool Exists(T model)
+        public bool Exists(Guid Id)
         {
             throw new NotImplementedException();
         }
@@ -35,7 +35,7 @@ namespace Storage.Service
             throw new NotImplementedException();
         }
 
-        public void Update(T model)
+        public bool Update(T model)
         {
             throw new NotImplementedException();
         }
