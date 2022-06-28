@@ -1,4 +1,5 @@
-﻿using Domain.Interface;
+﻿using Domain.ActionResults;
+using Domain.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +7,7 @@ namespace Domain.Base
 {
     [ApiController]
     [Route("[controller]")]
-    public abstract class BaseController<T> where T : BaseModel
+    public abstract class BaseController<T> : ControllerBase where T : BaseModel
     {
         protected abstract IRepository<T> Repository { get; init; }
 
@@ -15,7 +16,11 @@ namespace Domain.Base
         public virtual IActionResult Get(Guid Id)
         {
             var model = Repository.Read(Id);
-            return new OkObjectResult(Repository.Read(Id)); ;
+            if(model == null)
+            {
+                return NotFound(Id);
+            }
+            return Ok(Repository.Read(Id));
         }
 
         //Updates a Model
@@ -26,7 +31,7 @@ namespace Domain.Base
         {
             try
             {
-                if (Repository.Exists(model))
+                if (Repository.Exists(model.ID))
                 {
                     Repository.Update(model);
                 }
@@ -35,19 +40,28 @@ namespace Domain.Base
                     Repository.Create(model);
                 }
 
-                return new CreatedAtActionResult(nameof(Post), nameof(this.GetType), model, model);
+                return CreatedAtAction(nameof(Post), nameof(this.GetType), model, model);
             }
             catch(Exception ex)
             {
-                return new BadRequestResult();
+                return BadRequest(ex);
             }
         }
 
         //Deletes a Model.
         [HttpDelete]
-        public virtual void Delete(Guid Id)
+        public virtual IActionResult Delete(Guid Id)
         {
-
+            if(!Repository.Exists(Id))
+            {
+                return NotFound(Id);
+            }
+            var result = Repository.Delete(Id);
+            if(result)
+            {
+                return Ok();
+            }
+            return new ServerError("Could not be deleted by Storage for some reason");
         }
     }
 }
