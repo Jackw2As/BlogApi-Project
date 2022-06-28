@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Models\Domain.csproj" />
     <ProjectReference Include="..\Storage\Storage.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="Tests\Intergration_Tests" />
+	</ItemGroup>
 </Project>
