@@ -6,10 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlogAPI.Storage.Service
+namespace BlogAPI.Storage.InMemory
 {
-    public class InMemoryRepository<T> : IRepository<T> where T : BaseDatabaseModel
+    public class InMemoryRepository<T> : IRepository<T> where T : DataObject
     {
+        public InMemoryRepository(T[] data)
+        {
+
+        }
+
         public bool Create(T model)
         {
             throw new NotImplementedException();

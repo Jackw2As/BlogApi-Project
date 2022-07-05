@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Domain.Interface
 {
-    public interface IRepository<T> where T : BaseModel
+    public interface IRepository<T> where T : BaseObject
     {
         bool Create(T model);
         T Read(Guid Id);

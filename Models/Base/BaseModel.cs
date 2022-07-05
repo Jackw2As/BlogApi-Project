@@ -1,6 +1,6 @@
 ﻿namespace Domain.Base
 {
-    public abstract class BaseModel
+    public abstract class BaseObject
     {
         public virtual Guid ID { get; init; }
     }

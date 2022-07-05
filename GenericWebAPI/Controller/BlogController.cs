@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace Application.Controller
 {
     [Authorize()]
-    public class BlogController : BaseController<BlogModel>
+    public class BlogController : BaseController<Blog>
     {
-        protected override IRepository<BlogModel> Repository { get; init; }
-        public BlogController(IRepository<BlogModel> repository)
+        protected override IRepository<Blog> Repository { get; init; }
+        public BlogController(IRepository<Blog> repository)
         {
             Repository = repository;
         }

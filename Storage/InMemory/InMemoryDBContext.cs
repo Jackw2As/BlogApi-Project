@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlogAPI.Storage.Service
+namespace BlogAPI.Storage.InMemory
 {
-    public class AppicationDBContext : DbContext
+    public class InMemoryDBContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -1,16 +1,16 @@
-﻿using Domain.Base;
+﻿using BlogAPI.Storage.DatabaseModels;
+using Domain.Base;
 using Domain.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Storage.DatabaseModels;
 
 namespace Application.Controller
 {
     [Authorize()]
-    public class PostController : BaseController<PostModel>
+    public class PostController : BaseController<Post>
     {
-        protected override IRepository<PostModel> Repository { get; init; }
-        public PostController(IRepository<PostModel> repository)
+        protected override IRepository<Post> Repository { get; init; }
+        public PostController(IRepository<Post> repository)
         {
             Repository = repository;
         }

@@ -2,7 +2,7 @@
 
 namespace Application.ViewModel
 {
-    public class BlogViewModel : BaseModel
+    public class BlogViewModel : BaseObject
     {
         public List<PostDisplayModel> DisplayModels { get; set; } = new ();
         public string Name { get; set; }

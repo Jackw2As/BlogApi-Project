@@ -7,7 +7,7 @@ namespace Domain.Base
 {
     [ApiController]
     [Route("[controller]")]
-    public abstract class BaseController<T> : ControllerBase where T : BaseModel
+    public abstract class BaseController<T> : ControllerBase where T : BaseObject
     {
         protected abstract IRepository<T> Repository { get; init; }
 
