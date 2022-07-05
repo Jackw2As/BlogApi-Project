@@ -25,21 +25,9 @@ namespace BlogAPI.Storage.InMemory
             _contextOptions = new DbContextOptionsBuilder<InMemoryDBContext>()
                 .UseSqlite(_connection)
                 .Options;
-
-            // Create the schema and seed some data
-            using var context = new InMemoryDBContext(_contextOptions);
-
-            context.Database.EnsureCreated();
-
-            context.Set<DataObject>();
-
-            context.SaveChanges();
         }
 
         public void Dispose() => _connection.Dispose();
-
-
-        InMemoryDBContext CreateContext() => new InMemoryDBContext(_contextOptions);
 
         [Fact]
         public void ShouldGetDataObjectwithIDReturnDataObject()
@@ -56,14 +44,19 @@ namespace BlogAPI.Storage.InMemory
             //Assert
             Assert.NotNull(data);
             Assert.Equal(data[0].ID, dataInDatabase.ID);
+
+            Dispose();
         }
         [Fact]
         public void ShouldGetDataObjectwithIDReturnArgumentException()
         {
+
             DataObject[] data = { new() { ID = Guid.NewGuid() } };
             InMemoryRepository<DataObject> repository = new(data, _contextOptions);
-
+            
             Assert.ThrowsAny<ArgumentException>(() => repository.GetByID(Guid.NewGuid()));
+
+            Dispose();
         }
     }
 }
