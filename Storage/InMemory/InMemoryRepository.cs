@@ -1,5 +1,6 @@
 ﻿using BlogAPI.Storage.DatabaseModels;
 using Domain.Interface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,10 @@ namespace BlogAPI.Storage.InMemory
 {
     public class InMemoryRepository<T> : IRepository<T> where T : DataObject
     {
-        public InMemoryRepository(T[] data)
+        private readonly InMemoryDBContext _dbContext;
+        public InMemoryRepository(T[] data, DbContextOptions options)
         {
-
+            _dbContext = new(options) { DataObjectsSeedData = data };
         }
 
         public bool Create(T model)
@@ -30,7 +32,7 @@ namespace BlogAPI.Storage.InMemory
             throw new NotImplementedException();
         }
 
-        public T Read(Guid Id)
+        public T GetByID(Guid Id)
         {
             throw new NotImplementedException();
         }

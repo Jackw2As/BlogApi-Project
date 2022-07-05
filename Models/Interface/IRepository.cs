@@ -9,7 +9,7 @@ namespace Domain.Interface
     public interface IRepository<T> where T : BaseObject
     {
         bool Create(T model);
-        T Read(Guid Id);
+        T GetByID(Guid Id);
         bool Update(T model);
         bool Delete(Guid Id);
 

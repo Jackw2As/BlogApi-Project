@@ -15,12 +15,12 @@ namespace Domain.Base
         [HttpGet]
         public virtual IActionResult Get(Guid Id)
         {
-            var model = Repository.Read(Id);
+            var model = Repository.GetByID(Id);
             if(model == null)
             {
                 return NotFound(Id);
             }
-            return Ok(Repository.Read(Id));
+            return Ok(Repository.GetByID(Id));
         }
 
         //Updates a Model
