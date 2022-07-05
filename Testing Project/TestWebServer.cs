@@ -9,7 +9,10 @@ namespace Testing_Project
     {
         public static (TestServer, HttpClient) Create()
         {
-            var application = new WebApplicationFactory<Program>();
+            var application = new WebApplicationFactory<Program>().WithWebHostBuilder
+                (builder =>
+                    builder.UseTestServer().;
+                    ;
 
             var client = application.CreateClient();
             var server = application.Server;

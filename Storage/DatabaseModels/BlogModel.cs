@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Storage.DatabaseModels;
 
-namespace Storage.DatabaseModels
+namespace BlogAPI.Storage.DatabaseModels
 {
     public class BlogModel : BaseDatabaseModel
     {

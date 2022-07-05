@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 
 namespace Testing_Project.Unit_Tests
@@ -21,6 +22,7 @@ namespace Testing_Project.Unit_Tests
             var results = TestWebServer.Create();
 
             var client = results.Item2;
+            var server = results.Item1;
 
             await client.PostAsync($"blog/update/{id}");
         }

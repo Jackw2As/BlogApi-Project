@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Models\Domain.csproj" />
-    <ProjectReference Include="..\Storage\Storage.csproj" />
+    <ProjectReference Include="..\Storage\BlogAPI.Storage.csproj" />
   </ItemGroup>
 
 	<ItemGroup>

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Storage.Service
+namespace BlogAPI.Storage.Service
 {
     public class AppicationDBContext : DbContext
     {

@@ -1,8 +1,8 @@
-﻿using Domain.Base;
+﻿using BlogAPI.Storage.DatabaseModels;
+using Domain.Base;
 using Domain.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Storage.DatabaseModels;
 
 namespace Application.Controller
 {

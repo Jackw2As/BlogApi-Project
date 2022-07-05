@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Storage_Unit_Tests</RootNamespace>
+    <RootNamespace>BlogAPI.Storage</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Storage\Storage.csproj" />
+    <ProjectReference Include="..\Storage\BlogAPI.Storage.csproj" />
   </ItemGroup>
 
 </Project>

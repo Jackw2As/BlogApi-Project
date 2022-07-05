@@ -9,15 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Intergration Tests", "Testi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Models\Domain.csproj", "{78BB3036-DD14-4D71-A12C-757712F4185E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Storage", "Storage\Storage.csproj", "{30DCD777-0360-40E0-8851-7F37516887D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogAPI.Storage", "Storage\BlogAPI.Storage.csproj", "{30DCD777-0360-40E0-8851-7F37516887D8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E8B34B38-BCE7-4E77-A995-06B6895F1296}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit Application Tests", "Storage Testing\Unit Application Tests.csproj", "{D95220C5-3418-4853-B31F-96BFD308E83B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unit Application Tests", "Storage Testing\Unit Application Tests.csproj", "{D95220C5-3418-4853-B31F-96BFD308E83B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit Storage Tests", "Storage Unit Tests\Unit Storage Tests.csproj", "{77FB50D1-B4CA-4F53-8655-C044F7773549}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogAPI.Storage.Tests", "Storage Unit Tests\BlogAPI.Storage.Tests.csproj", "{77FB50D1-B4CA-4F53-8655-C044F7773549}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit Domain Tests", "Domain Unit Tests\Unit Domain Tests.csproj", "{437A1BAE-65A3-48C8-B374-1182B774C18D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unit Domain Tests", "Domain Unit Tests\Unit Domain Tests.csproj", "{437A1BAE-65A3-48C8-B374-1182B774C18D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
