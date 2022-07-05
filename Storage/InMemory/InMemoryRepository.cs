@@ -12,9 +12,14 @@ namespace BlogAPI.Storage.InMemory
     public class InMemoryRepository<T> : IRepository<T> where T : DataObject
     {
         private readonly InMemoryDBContext _dbContext;
+        private readonly DbSet<T> DbSet;
         public InMemoryRepository(T[] data, DbContextOptions options)
         {
             _dbContext = new(options) { DataObjectsSeedData = data };
+            DbSet = _dbContext.Set<T>();
+            _dbContext.Database.EnsureCreated();
+
+            _dbContext.SaveChanges();
         }
 
         public bool Create(T model)
@@ -34,7 +39,12 @@ namespace BlogAPI.Storage.InMemory
 
         public T GetByID(Guid Id)
         {
-            throw new NotImplementedException();
+            var model = DbSet.Find(Id);
+            if (model == null)
+            {
+                throw new ArgumentException($"{Id} isn't a valid ID. Entity couldn't be found!");
+            }
+            return model;
         }
 
         public IEnumerable<T> ReadMultiple()
