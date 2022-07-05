@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using System;
 
-namespace Testing_Project.Unit_Tests
-{
+namespace Testing_Project.Unit_Tests;
+
+    /*
     public class PostTests : IClassFixture<WebApplicationFactory<Program>>
     {
         [Theory]
@@ -44,4 +45,5 @@ namespace Testing_Project.Unit_Tests
             await client.PostAsync($"blog/create/");
         }
     }
-}
+    */
+

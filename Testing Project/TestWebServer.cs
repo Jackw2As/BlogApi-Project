@@ -11,8 +11,9 @@ namespace Testing_Project
         {
             var application = new WebApplicationFactory<Program>().WithWebHostBuilder
                 (builder =>
-                    builder.UseTestServer().;
-                    ;
+                    builder.UseTestServer()
+                    );
+
 
             var client = application.CreateClient();
             var server = application.Server;
