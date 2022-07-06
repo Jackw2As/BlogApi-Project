@@ -6,10 +6,10 @@ namespace BlogAPI.Storage.InMemory
     public class InMemoryDBContext : DbContext
     {
         //Note: For each DBSet create an Array create a public SeedData Class
+        public DbSet<MockDatabaseObject> MockDatabaseObject { get; set; }
 
-        public DbSet<DataObject> DataObjects { get; set; }
+        public MockDatabaseObject[]? MockDatabaseObjectSeedData { get; init; }
 
-        public DataObject[]? DataObjectsSeedData { get; init; }
         public InMemoryDBContext(DbContextOptions options) : base(options)
         {
 
@@ -24,8 +24,8 @@ namespace BlogAPI.Storage.InMemory
         {
             base.OnModelCreating(modelBuilder);
 
-            if(DataObjectsSeedData != null)
-            modelBuilder.Entity<DataObject>().HasData(DataObjectsSeedData);
+            if(MockDatabaseObjectSeedData != null)
+            modelBuilder.Entity<MockDatabaseObject>().HasData(MockDatabaseObjectSeedData);
         }
     }
 }
