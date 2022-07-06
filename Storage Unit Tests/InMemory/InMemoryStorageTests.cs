@@ -30,6 +30,7 @@ namespace BlogAPI.Storage.InMemory
         public void Dispose() => _connection.Dispose();
 
 
+
         #region GetByID
         [Fact]
         public void ShouldGetDataObjectwithIDReturnDataObject()
@@ -51,14 +52,15 @@ namespace BlogAPI.Storage.InMemory
         [Fact]
         public void ShouldGetDataObjectwithIDReturnArgumentException()
         {
-
             DataObject[] data = { new() { ID = Guid.NewGuid() } };
-            InMemoryRepository<DataObject> repository = new(data, _contextOptions);
-            
+            InMemoryRepository<DataObject> repository = CreateRepository(data);
+
             Assert.ThrowsAny<ArgumentException>(() => repository.GetByID(Guid.NewGuid()));
 
             Dispose();
         }
+
+        
         #endregion
 
         #region GetByQuery
@@ -90,8 +92,45 @@ namespace BlogAPI.Storage.InMemory
                 Assert.Contains(item, results);
             }
 
+            Dispose();
         }
 
+        
+        #endregion
+
+        #region Save
+        #endregion
+
+        #region Modifiy
+        #endregion
+
+        #region Delete
+        [Fact]
+        public void ShouldDeleteData()
+        {
+            //arranage
+            var data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
+
+            var deletedItemID = data[0].ID;
+            Assert.NotNull(repository.GetByID(deletedItemID));
+            
+            //act;
+            var success = repository.Delete(deletedItemID);
+
+            //assert
+            Assert.True(success, "For some reason Delete did not occur");
+
+            Assert.Throws<ArgumentException>(() => repository.GetByID(deletedItemID));
+            // We expect an arguement exception because the repository returns 
+            // an arguement exception when it can't find the object being requested.
+
+            Dispose();
+        }
+        #endregion
+
+
+        #region Helpers
         private static DataObject[] CreateDataObjectArray()
         {
             DataObject[] data =
@@ -119,6 +158,11 @@ namespace BlogAPI.Storage.InMemory
             };
 
             return data;
+        }
+
+        private InMemoryRepository<DataObject> CreateRepository(DataObject[] data)
+        {
+            return new(data, _contextOptions);
         }
         #endregion
     }
