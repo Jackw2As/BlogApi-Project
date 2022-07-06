@@ -36,9 +36,8 @@ namespace BlogAPI.Storage.InMemory
         public void ShouldGetDataObjectwithIDReturnDataObject()
         {
             //Arrange
-            DataObject[] data = { new() { ID = Guid.NewGuid() } };
-
-            InMemoryRepository<DataObject> repository = new(data ,_contextOptions);
+            DataObject[] data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
 
             //Act
             var dataInDatabase = repository.GetByID(data[0].ID);
@@ -52,7 +51,7 @@ namespace BlogAPI.Storage.InMemory
         [Fact]
         public void ShouldGetDataObjectwithIDReturnArgumentException()
         {
-            DataObject[] data = { new() { ID = Guid.NewGuid() } };
+            DataObject[] data = CreateDataObjectArray();
             InMemoryRepository<DataObject> repository = CreateRepository(data);
 
             Assert.ThrowsAny<ArgumentException>(() => repository.GetByID(Guid.NewGuid()));
@@ -75,7 +74,7 @@ namespace BlogAPI.Storage.InMemory
                 data = CreateDataObjectArray();
             }
 
-            InMemoryRepository<DataObject> repository = new(data, _contextOptions);
+            var repository = CreateRepository(data);
             Func<DataObject, bool> query = (data) => data.ID.ToString()[0] == 'a';
 
             var QuerriedDataObjectList = from DataObject in data
