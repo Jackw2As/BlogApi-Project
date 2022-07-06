@@ -33,11 +33,11 @@ namespace Domain.Base
             {
                 if (Repository.Exists(model.ID))
                 {
-                    Repository.Update(model);
+                    Repository.Modify(model);
                 }
                 else
                 {
-                    Repository.Create(model);
+                    Repository.Save(model);
                 }
 
                 return CreatedAtAction(nameof(Post), nameof(this.GetType), model, model);

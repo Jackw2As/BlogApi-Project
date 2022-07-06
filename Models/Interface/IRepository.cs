@@ -8,11 +8,45 @@ namespace Domain.Interface
 {
     public interface IRepository<T> where T : BaseObject
     {
-        bool Create(T model);
+        /// <summary>
+        /// Creates new data to storage
+        /// </summary>
+        bool Save(T model);
+
+        /// <summary>
+        /// Finds existing data in storage
+        /// </summary>
         T GetByID(Guid Id);
-        bool Update(T model);
+
+        /// <summary>
+        /// Modifies existing data in storage
+        /// </summary>
+        bool Modify(T model);
+
+        /// <summary>
+        /// Deletes existing data in storage permanently
+        /// </summary>
         bool Delete(Guid Id);
+
+        /// <summary>
+        /// Finds existing data in storage
+        /// </summary>
+        /// <param name="query"> Takes a conditional statement</param>
         IEnumerable<T> GetByQuery(Func<T, bool> query);
+
+        /// <summary>
+        /// returns true if an object that meets the criteria exists
+        /// </summary>
         bool Exists(Guid Id);
+        /// <summary>
+        /// returns true if an object that meets the criteria exists
+        /// </summary>
+        bool Exists(T Model);
+        
+        /// <summary>
+        /// returns true if an object that meets the criteria exists
+        /// </summary>
+        /// <param name="query"> Takes a conditional statement</param>
+        bool Exists(Func<T, bool> query);
     }
 }
