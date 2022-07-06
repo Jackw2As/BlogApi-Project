@@ -47,9 +47,10 @@ namespace BlogAPI.Storage.InMemory
             return model;
         }
 
-        public IEnumerable<T> ReadMultiple()
+        public IEnumerable<T> GetByQuery(Func<T, bool> query)
         {
-            throw new NotImplementedException();
+            var collection = DbSet.Where(query);
+            return collection;
         }
 
         public bool Update(T model)
