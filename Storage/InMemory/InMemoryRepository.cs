@@ -13,19 +13,19 @@ namespace BlogAPI.Storage.InMemory
     {
         private readonly InMemoryDBContext _dbContext;
         private readonly DbSet<T> DbSet;
-        public InMemoryRepository(T[] data, DbContextOptions options)
+        public InMemoryRepository(DbContextOptions options, MockDatabaseObject[]? mockSeedData = null)
         {
-            _dbContext = new(options) { DataObjectsSeedData = data };
+            _dbContext = new(options)
+            {
+                MockDatabaseObjectSeedData = mockSeedData            
+            };
             DbSet = _dbContext.Set<T>();
             _dbContext.Database.EnsureCreated();
 
             _dbContext.SaveChanges();
         }
 
-        public bool Create(T model)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public bool Delete(Guid Id)
         {
@@ -33,6 +33,16 @@ namespace BlogAPI.Storage.InMemory
         }
 
         public bool Exists(Guid Id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Exists(T Model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Exists(Func<T, bool> query)
         {
             throw new NotImplementedException();
         }
@@ -53,7 +63,12 @@ namespace BlogAPI.Storage.InMemory
             return collection;
         }
 
-        public bool Update(T model)
+        public bool Modify(T model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Save(T model)
         {
             throw new NotImplementedException();
         }
