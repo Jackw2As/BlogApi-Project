@@ -29,6 +29,8 @@ namespace BlogAPI.Storage.InMemory
 
         public void Dispose() => _connection.Dispose();
 
+
+        #region GetByID
         [Fact]
         public void ShouldGetDataObjectwithIDReturnDataObject()
         {
@@ -36,7 +38,6 @@ namespace BlogAPI.Storage.InMemory
             DataObject[] data = { new() { ID = Guid.NewGuid() } };
 
             InMemoryRepository<DataObject> repository = new(data ,_contextOptions);
-
 
             //Act
             var dataInDatabase = repository.GetByID(data[0].ID);
@@ -58,5 +59,67 @@ namespace BlogAPI.Storage.InMemory
 
             Dispose();
         }
+        #endregion
+
+        #region GetByQuery
+        [Fact]
+        public void ShouldReturnAListofDataObjects()
+        {
+            //arrange
+            DataObject[] data = CreateDataObjectArray();
+
+            while(data.Where((data) => data.ID.ToString()[0] == 'a').Count() > 1)
+            {
+                data = CreateDataObjectArray();
+            }
+
+            InMemoryRepository<DataObject> repository = new(data, _contextOptions);
+            Func<DataObject, bool> query = (data) => data.ID.ToString()[0] == 'a';
+
+            var QuerriedDataObjectList = from DataObject in data
+                                         where DataObject.ID.ToString()[0] == 'a'
+                                         select DataObject;
+
+
+            //act
+            var results = repository.GetByQuery(query);
+
+            //assert
+            foreach (var item in QuerriedDataObjectList)
+            {
+                Assert.Contains<DataObject>(item, results);
+            }
+
+        }
+
+        private static DataObject[] CreateDataObjectArray()
+        {
+            DataObject[] data =
+            {
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid() },
+            };
+
+            return data;
+        }
+        #endregion
     }
 }
