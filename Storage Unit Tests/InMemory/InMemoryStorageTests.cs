@@ -87,7 +87,7 @@ namespace BlogAPI.Storage.InMemory
             //assert
             foreach (var item in QuerriedDataObjectList)
             {
-                Assert.Contains<DataObject>(item, results);
+                Assert.Contains(item, results);
             }
 
         }
