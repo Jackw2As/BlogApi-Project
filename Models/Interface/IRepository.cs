@@ -12,8 +12,7 @@ namespace Domain.Interface
         T GetByID(Guid Id);
         bool Update(T model);
         bool Delete(Guid Id);
-
-        IEnumerable<T> ReadMultiple();
+        IEnumerable<T> GetByQuery(Func<T, bool> query);
         bool Exists(Guid Id);
     }
 }
