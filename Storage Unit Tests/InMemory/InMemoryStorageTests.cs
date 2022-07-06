@@ -9,12 +9,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlogAPI.Storage.InMemory
 {
-    public class InMemoryStorageTests
-    {
+
+    public class BaseInMemoryStorageTest : IDisposable {
+        
         private SqliteConnection _connection;
         private readonly DbContextOptions _contextOptions;
 
-        public InMemoryStorageTests()
+        public BaseInMemoryStorageTest()
         {
             // Create and open a connection. This creates the SQLite in-memory database, which will persist until the connection is closed
             // at the end of the test (see Dispose below).
@@ -29,110 +30,10 @@ namespace BlogAPI.Storage.InMemory
 
         public void Dispose() => _connection.Dispose();
 
-
-
-        #region GetByID
-        [Fact]
-        public void ShouldGetDataObjectwithIDReturnDataObject()
-        {
-            //Arrange
-            DataObject[] data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
-
-            //Act
-            var dataInDatabase = repository.GetByID(data[0].ID);
-
-            //Assert
-            Assert.NotNull(data);
-            Assert.Equal(data[0].ID, dataInDatabase.ID);
-
-            Dispose();
-        }
-        [Fact]
-        public void ShouldGetDataObjectwithIDReturnArgumentException()
-        {
-            DataObject[] data = CreateDataObjectArray();
-            InMemoryRepository<DataObject> repository = CreateRepository(data);
-
-            Assert.ThrowsAny<ArgumentException>(() => repository.GetByID(Guid.NewGuid()));
-
-            Dispose();
-        }
-
-        
-        #endregion
-
-        #region GetByQuery
-        [Fact]
-        public void ShouldReturnAListofDataObjects()
-        {
-            //arrange
-            DataObject[] data = CreateDataObjectArray();
-
-            while(data.Where((data) => data.ID.ToString()[0] == 'a').Count() > 1)
-            {
-                data = CreateDataObjectArray();
-            }
-
-            var repository = CreateRepository(data);
-            Func<DataObject, bool> query = (data) => data.ID.ToString()[0] == 'a';
-
-            var QuerriedDataObjectList = from DataObject in data
-                                         where DataObject.ID.ToString()[0] == 'a'
-                                         select DataObject;
-
-
-            //act
-            var results = repository.GetByQuery(query);
-
-            //assert
-            foreach (var item in QuerriedDataObjectList)
-            {
-                Assert.Contains(item, results);
-            }
-
-            Dispose();
-        }
-
-        
-        #endregion
-
-        #region Save
-        #endregion
-
-        #region Modifiy
-        #endregion
-
-        #region Delete
-        [Fact]
-        public void ShouldDeleteData()
-        {
-            //arranage
-            var data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
-
-            var deletedItemID = data[0].ID;
-            Assert.NotNull(repository.GetByID(deletedItemID));
-            
-            //act;
-            var success = repository.Delete(deletedItemID);
-
-            //assert
-            Assert.True(success, "For some reason Delete did not occur");
-
-            Assert.Throws<ArgumentException>(() => repository.GetByID(deletedItemID));
-            // We expect an arguement exception because the repository returns 
-            // an arguement exception when it can't find the object being requested.
-
-            Dispose();
-        }
-        #endregion
-
-
         #region Helpers
-        private static DataObject[] CreateDataObjectArray()
+        protected static MockDatabaseObject[] CreateDataObjectArray()
         {
-            DataObject[] data =
+            MockDatabaseObject[] data =
             {
                 new() { ID = Guid.NewGuid() },
                 new() { ID = Guid.NewGuid() },
@@ -159,10 +60,255 @@ namespace BlogAPI.Storage.InMemory
             return data;
         }
 
-        private InMemoryRepository<DataObject> CreateRepository(DataObject[] data)
+        protected InMemoryRepository<MockDatabaseObject> CreateRepository(MockDatabaseObject[] data)
         {
-            return new(data, _contextOptions);
+            return new(_contextOptions, data);
         }
         #endregion
     }
+
+    [Collection("Base Tests")]
+    public class GetByQuery : BaseInMemoryStorageTest
+    {
+        [Fact]
+        public void ShouldReturnAListofDataObjects()
+        {
+            //arrange
+            var data = CreateDataObjectArray();
+
+            while (data.Where((data) => data.ID.ToString()[0] == 'a').Count() > 2)
+            {
+                data = CreateDataObjectArray();
+            }
+
+            var repository = CreateRepository(data);
+            Func<DataObject, bool> query = (data) => data.ID.ToString()[0] == 'a';
+
+            var QuerriedDataObjectList = from DataObject in data
+                                         where DataObject.ID.ToString()[0] == 'a'
+                                         select DataObject;
+
+
+            //act
+            var results = repository.GetByQuery(query);
+
+            //assert
+            foreach (var item in QuerriedDataObjectList)
+            {
+                Assert.Contains(item, results);
+            }
+        }
+    }
+    
+    [Collection("Base Tests")]
+    public class GetByID : BaseInMemoryStorageTest
+    {
+        protected MockDatabaseObject[] Data { get; init; }
+        public GetByID()
+        {
+            Data = CreateDataObjectArray();
+        }
+        #region GetByID
+        [Fact]
+        public void ShouldGetDataObjectwithIDReturnDataObject()
+        {
+            //Arrange
+            var repository = CreateRepository(Data);
+
+            //Act
+            var dataInDatabase = repository.GetByID(Data[0].ID);
+
+            //Assert
+            Assert.NotNull(Data);
+            Assert.Equal(Data[0].ID, dataInDatabase.ID);
+        }
+        [Fact]
+        public void ShouldGetDataObjectwithIDReturnArgumentException()
+        {
+            InMemoryRepository<MockDatabaseObject> repository = CreateRepository(Data);
+
+            Assert.ThrowsAny<ArgumentException>(() => repository.GetByID(Guid.NewGuid()));
+        }
+
+        #endregion
+    }
+    
+    [Collection("Base Tests")]
+    public class Save : BaseInMemoryStorageTest
+    {
+        [Fact]
+        public void ShouldAddNewData()
+        {
+            //arranage
+            var data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
+
+
+            //act
+            var newObject = new MockDatabaseObject() { ID = new() };
+            bool success = repository.Save(newObject);
+
+            //Assert
+            Assert.True(success, "Repository did not save for some reason");
+        }
+    }
+    
+    [Collection("Base Tests")]
+    public class Modify : BaseInMemoryStorageTest
+    {
+        [Fact]
+        public void ShouldModifyData()
+        {
+            //arranage
+            var data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
+
+            var item = repository.GetByID(data[0].ID);
+
+            //act
+            item.ManipulateMe = false;
+            repository.Modify(item);
+
+            //assert
+            var collection = repository.GetByQuery((obj) => obj.ManipulateMe == false);
+            
+            Assert.NotEmpty(collection);
+            Assert.Contains(item, collection);
+            Assert.InRange(collection.Count(), 1, 1);
+        }
+
+    }
+    
+    [Collection("Base Tests")]
+    public class Delete : BaseInMemoryStorageTest 
+    {
+        [Fact]
+        public void ShouldDeleteData()
+        {
+            //arranage
+            var data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
+
+            var deletedItemID = data[0].ID;
+            Assert.NotNull(repository.GetByID(deletedItemID));
+
+            //act;
+            var success = repository.Delete(deletedItemID);
+
+            //assert
+            Assert.True(success, "For some reason Delete did not occur");
+
+            Assert.Throws<ArgumentException>(() => repository.GetByID(deletedItemID));
+            // We expect an arguement exception because the repository returns 
+            // an arguement exception when it can't find the object being requested.
+        }
+    }
+
+    [Collection("Base Tests")]
+    public class Exists : BaseInMemoryStorageTest {
+
+        #region ID
+        [Fact]
+        public void ShouldExistByID()
+        {
+            //arranage
+            var data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
+
+            var Item = data[0].ID;
+
+            //act;
+            var success = repository.Exists(Item);
+
+            //assert
+            Assert.True(success);
+
+            Dispose();
+        }
+        public void DoesNotExistByID()
+        {
+            //arranage
+            var data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
+
+            var Item = Guid.NewGuid();
+
+            //act;
+            var success = repository.Exists(Item);
+
+            //assert
+            Assert.False(success);
+
+            Dispose();
+        }
+        #endregion
+
+        #region Object
+        [Fact]
+        public void ShouldExistByObject()
+        {
+            //arranage
+            var data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
+
+            var Item = data[0];
+
+            //act;
+            var success = repository.Exists(Item);
+
+            //assert
+            Assert.True(success);
+
+            Dispose();
+        }
+        public void DoesNotExistByObject()
+        {
+            //arranage
+            var data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
+
+            var Item = new MockDatabaseObject { ID = Guid.NewGuid() };
+
+            //act;
+            var success = repository.Exists(Item);
+
+            //assert
+            Assert.False(success);
+        }
+        #endregion
+
+        #region Query
+        [Fact]
+        public void ShouldExistByQuery()
+        {
+            //arranage
+            var data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
+
+            var Item = data[0].ID;
+
+            //act;
+            var success = repository.Exists(obj => obj.ID == Item);
+
+            //assert
+            Assert.True(success);
+        }
+        public void DoesNotExistByQuery()
+        {
+            //arranage
+            var data = CreateDataObjectArray();
+            var repository = CreateRepository(data);
+
+            var Item = Guid.NewGuid();
+
+            //act;
+            var success = repository.Exists(obj => obj.ID == Item);
+
+            //assert
+            Assert.False(success);
+        }
+        #endregion
+    }
+
+
 }
