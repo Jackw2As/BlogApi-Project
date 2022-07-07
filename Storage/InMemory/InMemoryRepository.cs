@@ -58,7 +58,14 @@ namespace BlogAPI.Storage.InMemory
 
         public bool Modify(T model)
         {
-            throw new NotImplementedException();
+            var dbSet = _dbContext.Set<T>();
+
+            if(Exists(model))
+            {
+                dbSet.Update(model);
+                _dbContext.SaveChanges();
+            }
+            return false;
         }
 
         public bool Save(T model)
