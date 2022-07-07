@@ -155,12 +155,10 @@ namespace BlogAPI.Storage.InMemory
         public void ShouldAddNewData()
         {
             //arranage
-            var data = MockObjects;
             var repository = CreateRepository();
 
-
             //act
-            var newObject = new MockDatabaseObject() { ID = new() };
+            var newObject = new MockDatabaseObject() { ID = Guid.NewGuid() };
             bool success = repository.Save(newObject);
 
             //Assert
@@ -241,6 +239,7 @@ namespace BlogAPI.Storage.InMemory
 
             Dispose();
         }
+        [Fact]
         public void DoesNotExistByID()
         {
             //arranage
@@ -277,6 +276,7 @@ namespace BlogAPI.Storage.InMemory
 
             Dispose();
         }
+        [Fact]
         public void DoesNotExistByObject()
         {
             //arranage
@@ -309,6 +309,7 @@ namespace BlogAPI.Storage.InMemory
             //assert
             Assert.True(success);
         }
+        [Fact]
         public void DoesNotExistByQuery()
         {
             //arranage
