@@ -32,17 +32,32 @@ namespace BlogAPI.Storage.InMemory
 
         public bool Exists(Guid Id)
         {
-            throw new NotImplementedException();
+            var DbSet = _dbContext.Set<T>();
+            if (DbSet.Where(p => p.ID == Id) != null)
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool Exists(T Model)
         {
-            throw new NotImplementedException();
+            var DbSet = _dbContext.Set<T>();
+            if (DbSet.First(p => p == Model) != null)
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool Exists(Func<T, bool> query)
         {
-            throw new NotImplementedException();
+            var DbSet = _dbContext.Set<T>();
+            if (DbSet.Where(query) != null)
+            {
+                return true;
+            }
+            return false;
         }
 
         public T GetByID(Guid Id)
