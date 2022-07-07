@@ -33,7 +33,8 @@ namespace BlogAPI.Storage.InMemory
         public bool Exists(Guid Id)
         {
             var DbSet = _dbContext.Set<T>();
-            if (DbSet.Where(p => p.ID == Id) != null)
+
+            if (DbSet.Where(p => p.ID == Id).Any())
             {
                 return true;
             }
@@ -43,7 +44,7 @@ namespace BlogAPI.Storage.InMemory
         public bool Exists(T Model)
         {
             var DbSet = _dbContext.Set<T>();
-            if (DbSet.First(p => p == Model) != null)
+            if (DbSet.Where(p => p == Model).Any())
             {
                 return true;
             }
@@ -53,7 +54,7 @@ namespace BlogAPI.Storage.InMemory
         public bool Exists(Func<T, bool> query)
         {
             var DbSet = _dbContext.Set<T>();
-            if (DbSet.Where(query) != null)
+            if (DbSet.Where(query).Any())
             {
                 return true;
             }
