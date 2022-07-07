@@ -11,7 +11,7 @@ namespace BlogAPI.Storage.InMemory
 {
     public class InMemoryRepository<T> : IRepository<T> where T : DataObject
     {
-        private readonly InMemoryDBContext _dbContext;
+        protected readonly InMemoryDBContext _dbContext;
         //private readonly DbSet<T> DbSet;
         public InMemoryRepository(InMemoryDBContext dbContext)
         {
