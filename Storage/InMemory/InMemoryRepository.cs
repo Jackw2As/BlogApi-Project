@@ -20,7 +20,14 @@ namespace BlogAPI.Storage.InMemory
 
         public bool Delete(Guid Id)
         {
-            throw new NotImplementedException();
+            var DbSet = _dbContext.Set<T>();
+            if (Exists(Id))
+            {
+                DbSet.Remove(GetByID(Id));
+                _dbContext.SaveChanges();
+                return true;
+            }
+            return false;
         }
 
         public bool Exists(Guid Id)
