@@ -1,19 +1,17 @@
 ﻿using BlogAPI.Storage.DatabaseModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogAPI.Storage.InMemory
 {
 
-    public class BaseInMemoryStorageTest : IDisposable {
-        
+    public class BaseInMemoryStorageTest : IDisposable
+    {
+
         private SqliteConnection _connection;
         private readonly DbContextOptions _contextOptions;
+
+        protected IEnumerable<MockDatabaseObject> MockObjects;
 
         public BaseInMemoryStorageTest()
         {
@@ -26,12 +24,27 @@ namespace BlogAPI.Storage.InMemory
             _contextOptions = new DbContextOptionsBuilder<InMemoryDBContext>()
                 .UseSqlite(_connection)
                 .Options;
+
+            SeedData();
+        }
+
+
+        private void SeedData()
+        {
+            using var context = new InMemoryDBContext(_contextOptions);
+
+            if (context.Database.EnsureCreated())
+            {
+                context.AddRange(CreateMockObjects());
+
+                context.SaveChanges();
+            }
         }
 
         public void Dispose() => _connection.Dispose();
 
         #region Helpers
-        protected static MockDatabaseObject[] CreateDataObjectArray()
+        private IEnumerable<MockDatabaseObject> CreateMockObjects()
         {
             MockDatabaseObject[] data =
             {
@@ -57,12 +70,14 @@ namespace BlogAPI.Storage.InMemory
                 new() { ID = Guid.NewGuid() },
             };
 
+            MockObjects = data;
             return data;
         }
 
-        protected InMemoryRepository<MockDatabaseObject> CreateRepository(MockDatabaseObject[] data)
+        protected InMemoryDBContext CreateContext => new(_contextOptions);
+        protected InMemoryRepository<MockDatabaseObject> CreateRepository()
         {
-            return new(_contextOptions, data);
+            return new InMemoryRepository<MockDatabaseObject>(CreateContext);
         }
         #endregion
     }
@@ -74,14 +89,14 @@ namespace BlogAPI.Storage.InMemory
         public void ShouldReturnAListofDataObjects()
         {
             //arrange
-            var data = CreateDataObjectArray();
+            var data = MockObjects;
 
             while (data.Where((data) => data.ID.ToString()[0] == 'a').Count() > 2)
             {
-                data = CreateDataObjectArray();
+                data = MockObjects;
             }
 
-            var repository = CreateRepository(data);
+            var repository = CreateRepository();
             Func<DataObject, bool> query = (data) => data.ID.ToString()[0] == 'a';
 
             var QuerriedDataObjectList = from DataObject in data
@@ -99,21 +114,21 @@ namespace BlogAPI.Storage.InMemory
             }
         }
     }
-    
+
     [Collection("Base Tests")]
     public class GetByID : BaseInMemoryStorageTest
     {
         protected MockDatabaseObject[] Data { get; init; }
         public GetByID()
         {
-            Data = CreateDataObjectArray();
+            Data = MockObjects.ToArray();
         }
         #region GetByID
         [Fact]
         public void ShouldGetDataObjectwithIDReturnDataObject()
         {
             //Arrange
-            var repository = CreateRepository(Data);
+            var repository = CreateRepository();
 
             //Act
             var dataInDatabase = repository.GetByID(Data[0].ID);
@@ -125,14 +140,14 @@ namespace BlogAPI.Storage.InMemory
         [Fact]
         public void ShouldGetDataObjectwithIDReturnArgumentException()
         {
-            InMemoryRepository<MockDatabaseObject> repository = CreateRepository(Data);
+            InMemoryRepository<MockDatabaseObject> repository = CreateRepository();
 
             Assert.ThrowsAny<ArgumentException>(() => repository.GetByID(Guid.NewGuid()));
         }
 
         #endregion
     }
-    
+
     [Collection("Base Tests")]
     public class Save : BaseInMemoryStorageTest
     {
@@ -140,8 +155,8 @@ namespace BlogAPI.Storage.InMemory
         public void ShouldAddNewData()
         {
             //arranage
-            var data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
+            var data = MockObjects;
+            var repository = CreateRepository();
 
 
             //act
@@ -152,7 +167,7 @@ namespace BlogAPI.Storage.InMemory
             Assert.True(success, "Repository did not save for some reason");
         }
     }
-    
+
     [Collection("Base Tests")]
     public class Modify : BaseInMemoryStorageTest
     {
@@ -160,10 +175,10 @@ namespace BlogAPI.Storage.InMemory
         public void ShouldModifyData()
         {
             //arranage
-            var data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
+            var data = MockObjects;
+            var repository = CreateRepository();
 
-            var item = repository.GetByID(data[0].ID);
+            var item = repository.GetByID(data.First().ID);
 
             //act
             item.ManipulateMe = false;
@@ -171,25 +186,25 @@ namespace BlogAPI.Storage.InMemory
 
             //assert
             var collection = repository.GetByQuery((obj) => obj.ManipulateMe == false);
-            
+
             Assert.NotEmpty(collection);
             Assert.Contains(item, collection);
             Assert.InRange(collection.Count(), 1, 1);
         }
 
     }
-    
+
     [Collection("Base Tests")]
-    public class Delete : BaseInMemoryStorageTest 
+    public class Delete : BaseInMemoryStorageTest
     {
         [Fact]
         public void ShouldDeleteData()
         {
             //arranage
-            var data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
+            var data = MockObjects;
+            var repository = CreateRepository();
 
-            var deletedItemID = data[0].ID;
+            var deletedItemID = data.First().ID;
             Assert.NotNull(repository.GetByID(deletedItemID));
 
             //act;
@@ -205,17 +220,18 @@ namespace BlogAPI.Storage.InMemory
     }
 
     [Collection("Base Tests")]
-    public class Exists : BaseInMemoryStorageTest {
+    public class Exists : BaseInMemoryStorageTest
+    {
 
         #region ID
         [Fact]
         public void ShouldExistByID()
         {
             //arranage
-            var data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
+            var data = MockObjects;
+            var repository = CreateRepository();
 
-            var Item = data[0].ID;
+            var Item = data.First().ID;
 
             //act;
             var success = repository.Exists(Item);
@@ -228,8 +244,8 @@ namespace BlogAPI.Storage.InMemory
         public void DoesNotExistByID()
         {
             //arranage
-            var data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
+            var data = MockObjects;
+            var repository = CreateRepository();
 
             var Item = Guid.NewGuid();
 
@@ -248,10 +264,10 @@ namespace BlogAPI.Storage.InMemory
         public void ShouldExistByObject()
         {
             //arranage
-            var data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
+            var data = MockObjects;
+            var repository = CreateRepository();
 
-            var Item = data[0];
+            var Item = data.First();
 
             //act;
             var success = repository.Exists(Item);
@@ -264,8 +280,8 @@ namespace BlogAPI.Storage.InMemory
         public void DoesNotExistByObject()
         {
             //arranage
-            var data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
+            var data = MockObjects;
+            var repository = CreateRepository();
 
             var Item = new MockDatabaseObject { ID = Guid.NewGuid() };
 
@@ -282,10 +298,10 @@ namespace BlogAPI.Storage.InMemory
         public void ShouldExistByQuery()
         {
             //arranage
-            var data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
+            var data = MockObjects;
+            var repository = CreateRepository();
 
-            var Item = data[0].ID;
+            var Item = data.First().ID;
 
             //act;
             var success = repository.Exists(obj => obj.ID == Item);
@@ -296,8 +312,8 @@ namespace BlogAPI.Storage.InMemory
         public void DoesNotExistByQuery()
         {
             //arranage
-            var data = CreateDataObjectArray();
-            var repository = CreateRepository(data);
+            var data = MockObjects;
+            var repository = CreateRepository();
 
             var Item = Guid.NewGuid();
 

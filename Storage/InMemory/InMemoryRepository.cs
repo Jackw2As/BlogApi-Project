@@ -12,20 +12,11 @@ namespace BlogAPI.Storage.InMemory
     public class InMemoryRepository<T> : IRepository<T> where T : DataObject
     {
         private readonly InMemoryDBContext _dbContext;
-        private readonly DbSet<T> DbSet;
-        public InMemoryRepository(DbContextOptions options, MockDatabaseObject[]? mockSeedData = null)
+        //private readonly DbSet<T> DbSet;
+        public InMemoryRepository(InMemoryDBContext dbContext)
         {
-            _dbContext = new(options)
-            {
-                MockDatabaseObjectSeedData = mockSeedData            
-            };
-            DbSet = _dbContext.Set<T>();
-            _dbContext.Database.EnsureCreated();
-
-            _dbContext.SaveChanges();
+            _dbContext = dbContext;
         }
-
-
 
         public bool Delete(Guid Id)
         {
@@ -49,6 +40,8 @@ namespace BlogAPI.Storage.InMemory
 
         public T GetByID(Guid Id)
         {
+            var DbSet = _dbContext.Set<T>();
+            
             var model = DbSet.Find(Id);
             if (model == null)
             {
@@ -59,7 +52,7 @@ namespace BlogAPI.Storage.InMemory
 
         public IEnumerable<T> GetByQuery(Func<T, bool> query)
         {
-            var collection = DbSet.Where(query);
+            var collection = _dbContext.Set<T>().Where(query);
             return collection;
         }
 
