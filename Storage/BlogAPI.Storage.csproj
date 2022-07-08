@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Models\Domain.csproj" />
+    <ProjectReference Include="..\Models\BlogAPI.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

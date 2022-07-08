@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Domain_Unit_Tests</RootNamespace>
+    <RootNamespace>BlogAPI.Domain</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -23,13 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Model Tests\" />
-    <Folder Include="Controller Tests\" />
-    <Folder Include="Tag Tests\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Models\Domain.csproj" />
+    <ProjectReference Include="..\Models\BlogAPI.Domain.csproj" />
   </ItemGroup>
 
 </Project>
