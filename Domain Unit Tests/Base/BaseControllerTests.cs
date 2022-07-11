@@ -1,4 +1,5 @@
-﻿using Domain.Base;
+﻿using Domain.ActionResults;
+using Domain.Base;
 using Domain.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -125,8 +126,21 @@ public class BaseControllerUnitTests
         //Arange
         var testData = CreateTestData();
         var controller = new MockController(testData);
+
+        var item = testData.First();
+
         //Act
+        var response = controller.Delete(item.ID);
+
         //Assert
+        Assert.IsType<OkResult>(response);
+
+        var repository = controller.GetRepository();
+        Assert.False(repository.Exists(item));
+
+        var list = repository.GetByQuery((a) => true);
+
+        Assert.True(list.Count() == (testData.Count() - 1));
     }
 
     [Fact]
@@ -135,8 +149,15 @@ public class BaseControllerUnitTests
         //Arange
         var testData = CreateTestData();
         var controller = new MockController(testData);
+
+        var item = new MockBaseObject();
+
         //Act
+        var response = controller.Delete(item.ID);
+
         //Assert
+        Assert.IsType<NotFoundObjectResult>(response);
+        Assert.True(testData.Count() == testData.Count());
     }
     #endregion
 
@@ -170,10 +191,11 @@ public class MockRepository<T> : IRepository<T> where T : BaseObject
 
     public MockRepository(List<T>? SeedData = null)
     {
-        if (SeedData == null)
-            Storage = new List<T>();
-        else
-            Storage = SeedData;
+        Storage = new List<T>();
+        if (SeedData != null)
+        {
+            Storage.AddRange(SeedData);
+        }
     }
 
     public bool Save(T model)
@@ -194,7 +216,7 @@ public class MockRepository<T> : IRepository<T> where T : BaseObject
     public bool Delete(Guid Id)
     {
         var model = Storage.Find(p => p.ID == Id);
-        if(model != null) return false;
+        if(model == null) return false;
         Storage.Remove(model);
         return true;
     }
