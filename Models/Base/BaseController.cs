@@ -9,26 +9,31 @@ namespace Domain.Base
     [Route("[controller]")]
     public abstract class BaseController<T> : ControllerBase where T : BaseObject
     {
-        protected abstract IRepository<T> Repository { get; init; }
+        protected IRepository<T> Repository { get; init; }
+        public BaseController(IRepository<T> repository)
+        {
+            Repository = repository;
+        }
 
         //Returns a Specific Model
         [HttpGet]
-        public virtual IActionResult Get(Guid Id)
+        public virtual ActionResult<T> Get(Guid Id)
         {
-            var model = Repository.GetByID(Id);
-            if(model == null)
+            if(!Repository.Exists(Id))
             {
                 return NotFound(Id);
             }
-            return Ok(Repository.GetByID(Id));
+            return Repository.GetByID(Id);
         }
 
         //Updates a Model
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual IActionResult Post(T model)
+        public virtual ActionResult<T> Post(T model)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             try
             {
                 if (Repository.Exists(model.ID))
@@ -44,7 +49,8 @@ namespace Domain.Base
             }
             catch(Exception ex)
             {
-                return BadRequest(ex);
+                ModelState.AddModelError("", ex.Message);
+                return BadRequest(ModelState);
             }
         }
 

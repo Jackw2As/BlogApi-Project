@@ -19,6 +19,12 @@ namespace Domain.Interface
         T GetByID(Guid Id);
 
         /// <summary>
+        /// Finds existing data in storage
+        /// </summary>
+        /// <param name="query"> Takes a conditional statement</param>
+        IEnumerable<T> GetByQuery(Func<T, bool> query);
+
+        /// <summary>
         /// Modifies existing data in storage
         /// </summary>
         bool Modify(T model);
@@ -27,12 +33,6 @@ namespace Domain.Interface
         /// Deletes existing data in storage permanently
         /// </summary>
         bool Delete(Guid Id);
-
-        /// <summary>
-        /// Finds existing data in storage
-        /// </summary>
-        /// <param name="query"> Takes a conditional statement</param>
-        IEnumerable<T> GetByQuery(Func<T, bool> query);
 
         /// <summary>
         /// returns true if an object that meets the criteria exists
