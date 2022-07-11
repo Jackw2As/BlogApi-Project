@@ -23,7 +23,7 @@ namespace Domain.Base
             {
                 return NotFound(Id);
             }
-            return Repository.GetByID(Id);
+            return new OkObjectResult(Repository.GetByID(Id));
         }
 
         //Updates a Model
