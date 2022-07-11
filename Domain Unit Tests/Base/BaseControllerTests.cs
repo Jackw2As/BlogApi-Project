@@ -91,6 +91,55 @@ public class BaseControllerUnitTests
     }
     #endregion
 
+    #region Edit Tests
+
+    [Fact]
+    public void ShouldEditAnObject()
+    {
+        //Arange
+        var testData = CreateTestData();
+        var controller = new MockController(testData);
+
+        //Act
+        var item = testData.First();
+
+        item.isEdited = true;
+
+        var result = controller.Post(item);
+
+        //Assert
+        Assert.IsType<ActionResult<MockBaseObject>>(result);
+        Assert.Equal(item, ((ObjectResult)result.Result).Value);
+
+        var repo = controller.GetRepository();
+        Assert.True(repo.Exists(item));
+    }
+
+    #endregion
+
+    #region Delete Tests
+
+    [Fact]
+    public void ShouldDeleteAnObject()
+    {
+        //Arange
+        var testData = CreateTestData();
+        var controller = new MockController(testData);
+        //Act
+        //Assert
+    }
+
+    [Fact]
+    public void ShouldNotDeleteAnObject()
+    {
+        //Arange
+        var testData = CreateTestData();
+        var controller = new MockController(testData);
+        //Act
+        //Assert
+    }
+    #endregion
+
     private List<MockBaseObject> CreateTestData()
     {
         return new()
@@ -103,27 +152,7 @@ public class BaseControllerUnitTests
 
     
 
-    #region Edit Tests
-
-    #endregion
-
-    #region Delete Tests
-    #endregion
-
-    public void ShouldEditAnObject()
-    {
-        //Arange
-        var Controller = new MockController();
-        //Act
-        //Assert
-    }
-    public void ShouldDeleteAnObject()
-    {
-        //Arange
-        var Controller = new MockController();
-        //Act
-        //Assert
-    }
+    
 }
 
 
