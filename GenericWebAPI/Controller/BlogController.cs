@@ -9,16 +9,8 @@ namespace Application.Controller
     [Authorize()]
     public class BlogController : BaseController<Blog>
     {
-        protected override IRepository<Blog> Repository { get; init; }
-        public BlogController(IRepository<Blog> repository)
+        public BlogController(IRepository<Blog> repository) : base(repository)
         {
-            Repository = repository;
-        }
-
-        [AllowAnonymous]
-        public override IActionResult Get(Guid Id)
-        {
-            return base.Get(Id);
         }
     }
 }

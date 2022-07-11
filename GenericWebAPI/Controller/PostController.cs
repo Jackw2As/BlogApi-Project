@@ -9,16 +9,9 @@ namespace Application.Controller
     [Authorize()]
     public class PostController : BaseController<Post>
     {
-        protected override IRepository<Post> Repository { get; init; }
-        public PostController(IRepository<Post> repository)
+        public PostController(IRepository<Post> repository) : base(repository)
         {
-            Repository = repository;
-        }
 
-        [AllowAnonymous]
-        public override IActionResult Get(Guid Id)
-        {
-            return base.Get(Id);
         }
     }
 }
