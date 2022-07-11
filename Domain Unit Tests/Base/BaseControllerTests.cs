@@ -25,7 +25,7 @@ public class BaseControllerUnitTests
         var result = Controller.Post(model);
         //Assert
         Assert.IsType<ActionResult<MockBaseObject>>(result);
-        Assert.Equal(model, ( (ObjectResult) result.Result ).Value);
+        Assert.Equal(model, ((ObjectResult)result.Result).Value);
 
         var repo = Controller.GetRepository();
         Assert.True(repo.Exists(model));
@@ -43,8 +43,8 @@ public class BaseControllerUnitTests
         var result = Controller.Post(model);
 
         //Assert
-        var objectResult= result.Result as ObjectResult;
-        
+        var objectResult = result.Result as ObjectResult;
+
         var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
         Assert.True(badRequest.StatusCode == 400);
         Assert.IsType<SerializableError>(badRequest.Value);
@@ -56,25 +56,52 @@ public class BaseControllerUnitTests
     #endregion
 
     #region Read Tests
-
-    #endregion
     [Fact]
     public void ShouldReadAnObjectByID()
     {
         //Arange
-        var Controller = new MockController();
+        var testData = CreateTestData();
+        var controller = new MockController(testData);
+        var item = testData.First();
+
         //Act
+        var result = controller.Get(item.ID);
+
         //Assert
+        Assert.NotNull(result);
+        var objectResult = Assert.IsType<OkObjectResult>(result.Result);
+        Assert.StrictEqual(item, objectResult.Value);
     }
 
     [Fact]
     public void ShouldNotReadAnObjectByID()
     {
         //Arange
-        var Controller = new MockController();
+        var testData = CreateTestData();
+        var controller = new MockController(testData);
+        var id = Guid.NewGuid();
+
         //Act
+        var result = controller.Get(id);
+
         //Assert
+        Assert.NotNull(result);
+        var objectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.StrictEqual(id, objectResult.Value);
     }
+    #endregion
+
+    private List<MockBaseObject> CreateTestData()
+    {
+        return new()
+        {
+            new(),
+            new(),
+            new(),
+        };
+    }
+
+    
 
     #region Edit Tests
 
