@@ -55,6 +55,10 @@ public class BaseControllerUnitTests
 
     #endregion
 
+    #region Read Tests
+
+    #endregion
+    [Fact]
     public void ShouldReadAnObjectByID()
     {
         //Arange
@@ -62,6 +66,23 @@ public class BaseControllerUnitTests
         //Act
         //Assert
     }
+
+    [Fact]
+    public void ShouldNotReadAnObjectByID()
+    {
+        //Arange
+        var Controller = new MockController();
+        //Act
+        //Assert
+    }
+
+    #region Edit Tests
+
+    #endregion
+
+    #region Delete Tests
+    #endregion
+
     public void ShouldEditAnObject()
     {
         //Arange
@@ -82,7 +103,7 @@ public class BaseControllerUnitTests
 public class MockController : BaseController<MockBaseObject>
 {
     public IRepository<MockBaseObject>  GetRepository() => Repository;
-    public MockController() : base(new MockRepository<MockBaseObject>())
+    public MockController(List<MockBaseObject>? SeedData = null) : base(new MockRepository<MockBaseObject>(SeedData))
     {
     }
 }
@@ -91,9 +112,12 @@ public class MockRepository<T> : IRepository<T> where T : BaseObject
 {
     List<T> Storage { get; }
 
-    public MockRepository()
+    public MockRepository(List<T>? SeedData = null)
     {
-        Storage = new List<T>();
+        if (SeedData == null)
+            Storage = new List<T>();
+        else
+            Storage = SeedData;
     }
 
     public bool Save(T model)
