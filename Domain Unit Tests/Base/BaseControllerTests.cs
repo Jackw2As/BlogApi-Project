@@ -12,41 +12,67 @@ namespace BlogAPI.Domain.Base;
 
 public class BaseControllerUnitTests
 {
-    private MockController Controller { get; set; }
-    public BaseControllerUnitTests()
-    {
-        Controller = new MockController();
-    }
 
+    #region Create Tests
     [Fact]
     public void ShouldCreateNewObject()
     {
         //Arange
+        var Controller = new MockController();
         var model = new MockBaseObject();
+
         //Act
         var result = Controller.Post(model);
         //Assert
-        Assert.IsType<MockBaseObject>(result);
+        Assert.IsType<ActionResult<MockBaseObject>>(result);
+        Assert.Equal(model, ( (ObjectResult) result.Result ).Value);
 
         var repo = Controller.GetRepository();
         Assert.True(repo.Exists(model));
     }
 
+    [Fact]
+    public void ShouldNOTCreateNewObjectValidError()
+    {
+        //Arange
+        var Controller = new MockController();
+        var model = new MockBaseObject();
+
+        //Act
+        Controller.ModelState.AddModelError("", "Test");
+        var result = Controller.Post(model);
+
+        //Assert
+        var objectResult= result.Result as ObjectResult;
+        
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.True(badRequest.StatusCode == 400);
+        Assert.IsType<SerializableError>(badRequest.Value);
+
+        var repo = Controller.GetRepository();
+        Assert.False(repo.Exists(model));
+    }
+
+    #endregion
+
     public void ShouldReadAnObjectByID()
     {
         //Arange
+        var Controller = new MockController();
         //Act
         //Assert
     }
     public void ShouldEditAnObject()
     {
         //Arange
+        var Controller = new MockController();
         //Act
         //Assert
     }
     public void ShouldDeleteAnObject()
     {
         //Arange
+        var Controller = new MockController();
         //Act
         //Assert
     }
@@ -55,15 +81,64 @@ public class BaseControllerUnitTests
 
 public class MockController : BaseController<MockBaseObject>
 {
-    protected override IRepository<MockBaseObject> Repository { get; init; }
-
     public IRepository<MockBaseObject>  GetRepository() => Repository;
-
-
-    public MockController() : base(null)
+    public MockController() : base(new MockRepository<MockBaseObject>())
     {
-        var mock = new Mock<IRepository<MockBaseObject>>();
-        Repository = mock.Object;
     }
 }
 
+public class MockRepository<T> : IRepository<T> where T : BaseObject
+{
+    List<T> Storage { get; }
+
+    public MockRepository()
+    {
+        Storage = new List<T>();
+    }
+
+    public bool Save(T model)
+    {
+        Storage.Add(model);
+        return true;
+    }
+
+    public T GetByID(Guid Id) => Storage.First(p => p.ID == Id);
+
+    public bool Modify(T model)
+    {
+        Storage.Remove(model);
+        Storage.Add(model);
+        return true;
+    }
+
+    public bool Delete(Guid Id)
+    {
+        var model = Storage.Find(p => p.ID == Id);
+        if(model != null) return false;
+        Storage.Remove(model);
+        return true;
+    }
+
+    public IEnumerable<T> GetByQuery(Func<T, bool> query)
+    {
+        return Storage.Where(query);
+    }
+
+    public bool Exists(Guid Id)
+    {
+        if(Storage.Where(p=> p.ID == Id).Count() > 0) return true;
+        return false;
+    }
+
+    public bool Exists(T Model)
+    {
+        if (Storage.Where(p => p == Model).Count() > 0) return true;
+        return false;
+    }
+
+    public bool Exists(Func<T, bool> query)
+    {
+        if (Storage.Where(query).Count() > 0) return true;
+        return false;
+    }
+}
