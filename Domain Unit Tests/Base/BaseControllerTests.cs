@@ -1,6 +1,4 @@
 ﻿using Domain.ActionResults;
-using Domain.Base;
-using Domain.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
@@ -169,78 +167,5 @@ public class BaseControllerUnitTests
             new(),
             new(),
         };
-    }
-
-    
-
-    
-}
-
-
-public class MockController : BaseController<MockBaseObject>
-{
-    public IRepository<MockBaseObject>  GetRepository() => Repository;
-    public MockController(List<MockBaseObject>? SeedData = null) : base(new MockRepository<MockBaseObject>(SeedData))
-    {
-    }
-}
-
-public class MockRepository<T> : IRepository<T> where T : BaseObject
-{
-    List<T> Storage { get; }
-
-    public MockRepository(List<T>? SeedData = null)
-    {
-        Storage = new List<T>();
-        if (SeedData != null)
-        {
-            Storage.AddRange(SeedData);
-        }
-    }
-
-    public bool Save(T model)
-    {
-        Storage.Add(model);
-        return true;
-    }
-
-    public T GetByID(Guid Id) => Storage.First(p => p.ID == Id);
-
-    public bool Modify(T model)
-    {
-        Storage.Remove(model);
-        Storage.Add(model);
-        return true;
-    }
-
-    public bool Delete(Guid Id)
-    {
-        var model = Storage.Find(p => p.ID == Id);
-        if(model == null) return false;
-        Storage.Remove(model);
-        return true;
-    }
-
-    public IEnumerable<T> GetByQuery(Func<T, bool> query)
-    {
-        return Storage.Where(query);
-    }
-
-    public bool Exists(Guid Id)
-    {
-        if(Storage.Where(p=> p.ID == Id).Count() > 0) return true;
-        return false;
-    }
-
-    public bool Exists(T Model)
-    {
-        if (Storage.Where(p => p == Model).Count() > 0) return true;
-        return false;
-    }
-
-    public bool Exists(Func<T, bool> query)
-    {
-        if (Storage.Where(query).Count() > 0) return true;
-        return false;
     }
 }
