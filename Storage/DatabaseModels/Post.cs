@@ -25,7 +25,7 @@ namespace BlogAPI.Storage.DatabaseModels
 
         public Post()
         {
-            if(Summary == null)
+            if(Summary != null)
             {
                 int substringLength = 250;
                 if(Summary.Length < 250)
