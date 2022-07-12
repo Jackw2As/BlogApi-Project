@@ -31,7 +31,7 @@ namespace BlogAPI.Storage.InMemory
 
         private void SeedData()
         {
-            using var context = new InMemoryDBContext(_contextOptions);
+            using var context = new MockInMemoryDBContext(_contextOptions);
 
             if (context.Database.EnsureCreated())
             {
@@ -74,10 +74,10 @@ namespace BlogAPI.Storage.InMemory
             return data;
         }
 
-        protected InMemoryDBContext CreateContext => new(_contextOptions);
-        protected InMemoryRepository<MockDatabaseObject> CreateRepository()
+        protected MockInMemoryDBContext CreateContext => new(_contextOptions);
+        protected MockInMemoryRepository CreateRepository()
         {
-            return new InMemoryRepository<MockDatabaseObject>(CreateContext);
+            return new MockInMemoryRepository(CreateContext);
         }
         #endregion
     }
@@ -140,7 +140,7 @@ namespace BlogAPI.Storage.InMemory
         [Fact]
         public void ShouldGetDataObjectwithIDReturnArgumentException()
         {
-            InMemoryRepository<MockDatabaseObject> repository = CreateRepository();
+            MockInMemoryRepository repository = CreateRepository();
 
             Assert.ThrowsAny<ArgumentException>(() => repository.GetByID(Guid.NewGuid()));
         }
