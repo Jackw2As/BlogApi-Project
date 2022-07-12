@@ -5,6 +5,10 @@ namespace BlogAPI.Storage.InMemory
 {
     public class InMemoryDBContext : DbContext
     {
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Post> Posts { get; set; }
+
         public InMemoryDBContext(DbContextOptions options) : base(options)
         {
 
