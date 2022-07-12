@@ -16,5 +16,7 @@ namespace BlogAPI.Storage.DatabaseModels
         public string Content { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModfied { get; set; }
+
+        public Post Post { get; set; }
     }
 }

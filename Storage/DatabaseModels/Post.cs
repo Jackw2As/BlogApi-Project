@@ -18,5 +18,23 @@ namespace BlogAPI.Storage.DatabaseModels
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
 
+        public Blog Blog { get; set; }
+
+        public List<Comment> Comments { get; set; }
+
+
+        public Post()
+        {
+            if(Summary == null)
+            {
+                int substringLength = 250;
+                if(Summary.Length < 250)
+                {
+                    substringLength = Summary.Length;
+                }
+                Summary = Content.Substring(0, substringLength);
+            }
+        }
+
     }
 }

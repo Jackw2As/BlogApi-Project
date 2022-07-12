@@ -9,9 +9,9 @@ namespace BlogAPI.Storage.DatabaseModels
         public string Name { get; set; }
 
         [Required]
-        [StringLength (300, MinimumLength = 1)]
+        [StringLength(300, MinimumLength = 1)]
         public string Summary { get; set; }
 
-        List<Post> Post { get; set; }
+        public List<Post> Posts { get; set; } = new();
     }
 }
