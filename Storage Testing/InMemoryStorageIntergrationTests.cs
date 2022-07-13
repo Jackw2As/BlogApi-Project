@@ -35,11 +35,10 @@ namespace BlogAPI.Storage.InMemory
 
         public void Dispose() => _connection.Dispose();
 
-        protected MockInMemoryDBContext CreateContext => new(_contextOptions);
-        protected MockInMemoryRepository CreateRepository()
-        {
-            return new MockInMemoryRepository(CreateContext);
-        }
+        protected InMemoryDBContext CreateContext => new(_contextOptions);
+        protected InMemoryRepository<Blog> CreateBlogRepository() => new InMemoryRepository<Blog>(CreateContext);
+        protected InMemoryRepository<Post> CreatePostRepository() => new InMemoryRepository<Post>(CreateContext);
+        protected InMemoryRepository<Comment> CreateCommentRepository() => new InMemoryRepository<Comment>(CreateContext);
 
         #region Blog Tests
 
@@ -47,9 +46,15 @@ namespace BlogAPI.Storage.InMemory
         public void ShouldCreateBlog()
         {
             //Arrange
-            
+            var repository = CreateBlogRepository();
+            var item = MockBlogs.First();
+
             //Act
+            var blog = repository.Save(item);
+
             //Assert
+
+            throw new NotImplementedException();
         }
 
         [Fact]
@@ -58,6 +63,7 @@ namespace BlogAPI.Storage.InMemory
             //Arrange
             //Act
             //Assert
+            throw new NotImplementedException();
         }
 
         [Fact]
@@ -66,6 +72,7 @@ namespace BlogAPI.Storage.InMemory
             //Arrange
             //Act
             //Assert
+            throw new NotImplementedException();
         }
 
         [Fact]
@@ -74,6 +81,7 @@ namespace BlogAPI.Storage.InMemory
             //Arrange
             //Act
             //Assert
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -90,7 +98,7 @@ namespace BlogAPI.Storage.InMemory
         #region Helper
         private void SeedData()
         {
-            using var context = new MockInMemoryDBContext(_contextOptions);
+            using var context = new InMemoryDBContext(_contextOptions);
 
             if (context.Database.EnsureCreated())
             {

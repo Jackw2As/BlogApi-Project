@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Application_Unit_Tests</RootNamespace>
+    <RootNamespace>BlogAPI.Application</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GenericWebAPI\Application.csproj" />
+    <ProjectReference Include="..\GenericWebAPI\BlogAPI.Application.csproj" />
   </ItemGroup>
 
 </Project>

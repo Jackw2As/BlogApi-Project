@@ -16,6 +16,6 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="Tests\Intergration_Tests" />
+		<InternalsVisibleTo Include="BlogAPI.Application.Tests" />
 	</ItemGroup>
 </Project>
