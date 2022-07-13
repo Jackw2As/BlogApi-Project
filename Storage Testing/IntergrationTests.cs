@@ -1,99 +1,118 @@
 ﻿using BlogAPI.Storage.DatabaseModels;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BlogAPI.Storage.InMemory
 {
-    public class IntergrationTests
+    public class BaseIntergrationTests
     {
-        private SqliteConnection _connection;
-        private readonly DbContextOptions _contextOptions;
+        public WebApplicationFactory<Program> ApplicationFactory { get; init; }
+        public BaseIntergrationTests()
+        {
+            ApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(
+                builder =>
+                {
+                    
+                });
+        }
+    }
 
-        protected IEnumerable<Comment> MockComments;
-        protected IEnumerable<Blog> MockBlogs;
-        protected IEnumerable<Post> MockPosts;
-
+    public class IntergrationTests : BaseIntergrationTests
+    {
         public IntergrationTests()
         {
-            // Create and open a connection. This creates the SQLite in-memory database, which will persist until the connection is closed
-            // at the end of the test (see Dispose below).
-            _connection = new SqliteConnection("Filename=:memory:");
-            _connection.Open();
-
-            // These options will be used by the context instances in this test suite, including the connection opened above.
-            _contextOptions = new DbContextOptionsBuilder<InMemoryDBContext>()
-                .UseSqlite(_connection)
-                .Options;
-
             SeedData();
         }
 
-        public void Dispose() => _connection.Dispose();
-
-        protected InMemoryDBContext CreateContext => new(_contextOptions);
-        protected InMemoryRepository<Blog> CreateBlogRepository() => new InMemoryRepository<Blog>(CreateContext);
-        protected InMemoryRepository<Post> CreatePostRepository() => new InMemoryRepository<Post>(CreateContext);
-        protected InMemoryRepository<Comment> CreateCommentRepository() => new InMemoryRepository<Comment>(CreateContext);
-
-        #region Blog Tests
-
         [Fact]
-        public void ShouldCreateBlog()
+        public async void ShouldCreateBlogThenCreatePost()
         {
             //Arrange
-            var repository = CreateBlogRepository();
-            var item = MockBlogs.First();
+            var client = ApplicationFactory.CreateDefaultClient();
+            var server = ApplicationFactory.Server;
 
-            //Act
-            var blog = repository.Save(item);
+            //Create Blog
+            var blog = new CreateBlog();
+            var blogContent = JsonContent.Create(blog);
+            var blogResponse = await client.PostAsync("/blog", blogContent);
 
-            //Assert
+            Assert.True(blogResponse.IsSuccessStatusCode);
 
-            throw new NotImplementedException();
+            //Create Post
+            var post = new CreatePost();
+            var postContent = JsonContent.Create(post);
+            var postResponse = await client.PostAsync("/blog", postContent);
+
+            Assert.True(postResponse.IsSuccessStatusCode);
         }
 
         [Fact]
-        public void ShouldGetBlog()
+        public void ShouldNotCreatePost()
         {
             //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+            var server = ApplicationFactory.Server;
+
             //Act
+            var post = new CreatePost();
+            var postContent = JsonContent.Create(post);
+            var postResponse = await client.PostAsync("/blog", postContent);
+
             //Assert
-            throw new NotImplementedException();
+            Assert.True(postResponse.IsSuccessStatusCode);
+        }
+
+        [Theory]
+        [InlineData( new object[] { "/blog", GetBlog })]
+        [InlineData( new object[] { "/post", GetPost })]
+        [InlineData( new object[] { "/comment", GetComment })]
+        public async void ShouldGetCorrectContent(string url, Type type)
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var response = await client.GetAsync(url);
+
+            //Assert
+            Assert.True(response.IsSuccessStatusCode);
+
+            Assert.IsType(type, response.Content);
         }
 
         [Fact]
-        public void ShouldEditBlog()
+        public async void ShouldDeleteBlogAndPostsAndComments()
         {
             //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
             //Act
+            var response = await client.DeleteAsync("/blog");
             //Assert
-            throw new NotImplementedException();
-        }
+            Assert.True(response.IsSuccessStatusCode);
 
+            //Assert that no Posts exist that either have a null Blog or point to the blog deleted
+
+            //Assert that no Comments exist that either have a null Post or point to a Post deleted
+        }
         [Fact]
-        public void ShouldDeleteBlog()
+        public async void ShouldCreateCommentOnExistingPost()
         {
             //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
             //Act
+            var comment = CreateComment();
+            var content = JsonContent.Create(comment);
+            var response = await client.PostAsync("/comment", content);
             //Assert
-            throw new NotImplementedException();
+            Assert.True(response.IsSuccessStatusCode);
         }
-
-        #endregion
-
-        #region Post Tests
-
-        #endregion
-
-        #region Comment Tests
-
-        #endregion
-
 
         #region Helper
         private void SeedData()
