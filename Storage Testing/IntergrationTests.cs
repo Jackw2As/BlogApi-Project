@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BlogAPI.Storage.InMemory
 {
-    public class InMemoryStorageIntergrationTests
+    public class IntergrationTests
     {
         private SqliteConnection _connection;
         private readonly DbContextOptions _contextOptions;
@@ -18,7 +18,7 @@ namespace BlogAPI.Storage.InMemory
         protected IEnumerable<Blog> MockBlogs;
         protected IEnumerable<Post> MockPosts;
 
-        public InMemoryStorageIntergrationTests()
+        public IntergrationTests()
         {
             // Create and open a connection. This creates the SQLite in-memory database, which will persist until the connection is closed
             // at the end of the test (see Dispose below).
