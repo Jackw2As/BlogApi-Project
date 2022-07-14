@@ -30,7 +30,6 @@ namespace BlogAPI.Storage.InMemory
     {
         public IntergrationTests()
         {
-            SeedData();
         }
 
         [Fact]
