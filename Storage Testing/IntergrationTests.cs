@@ -1,4 +1,6 @@
-﻿using BlogAPI.Storage.DatabaseModels;
+﻿using BlogAPI.Application.ApiModels;
+using BlogAPI.Storage.DatabaseModels;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -39,14 +41,20 @@ namespace BlogAPI.Storage.InMemory
             var server = ApplicationFactory.Server;
 
             //Create Blog
-            var blog = new CreateBlog();
-            var blogContent = JsonContent.Create(blog);
+            var createBlog = new CreateBlog(Faker.Name.First());
+            var blogContent = JsonContent.Create(createBlog);
             var blogResponse = await client.PostAsync("/blog", blogContent);
 
             Assert.True(blogResponse.IsSuccessStatusCode);
 
+
+            var result = await blogResponse.Content.ReadFromJsonAsync<ActionResult<Blog>>();
+            Assert.NotNull(result);
+
             //Create Post
-            var post = new CreatePost();
+            var blog = result!.Value;
+            Assert.NotNull(blog);
+            var post = new CreatePost(Faker.Lorem.GetFirstWord(), Faker.Lorem.Paragraph(10), blog!);
             var postContent = JsonContent.Create(post);
             var postResponse = await client.PostAsync("/blog", postContent);
 
@@ -54,14 +62,14 @@ namespace BlogAPI.Storage.InMemory
         }
 
         [Fact]
-        public void ShouldNotCreatePost()
+        public async void ShouldNotCreatePost()
         {
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
             var server = ApplicationFactory.Server;
 
             //Act
-            var post = new CreatePost();
+            var post = new CreatePost("test", "test content", null!);
             var postContent = JsonContent.Create(post);
             var postResponse = await client.PostAsync("/blog", postContent);
 
@@ -69,10 +77,11 @@ namespace BlogAPI.Storage.InMemory
             Assert.True(postResponse.IsSuccessStatusCode);
         }
 
+        /*
         [Theory]
-        [InlineData( new object[] { "/blog", GetBlog })]
-        [InlineData( new object[] { "/post", GetPost })]
-        [InlineData( new object[] { "/comment", GetComment })]
+        [InlineData( new object[] { "/blog", Blog })]
+        [InlineData( new object[] { "/post", Post })]
+        [InlineData( new object[] { "/comment", Comment })]
         public async void ShouldGetCorrectContent(string url, Type type)
         {
             //Arrange
@@ -84,7 +93,7 @@ namespace BlogAPI.Storage.InMemory
             //Assert
             Assert.True(response.IsSuccessStatusCode);
 
-            Assert.IsType(type, response.Content);
+            Assert.IsType(type, await response.Content.ReadFromJsonAsync(type);
         }
 
         [Fact]
@@ -101,6 +110,8 @@ namespace BlogAPI.Storage.InMemory
 
             //Assert that no Comments exist that either have a null Post or point to a Post deleted
         }
+
+        
         [Fact]
         public async void ShouldCreateCommentOnExistingPost()
         {
@@ -113,116 +124,6 @@ namespace BlogAPI.Storage.InMemory
             //Assert
             Assert.True(response.IsSuccessStatusCode);
         }
-
-        #region Helper
-        private void SeedData()
-        {
-            using var context = new InMemoryDBContext(_contextOptions);
-
-            if (context.Database.EnsureCreated())
-            {
-                context.AddRange(CreateMockObjects());
-
-                context.SaveChanges();
-            }
-        }
-
-        private object[] CreateMockObjects()
-        {
-            var collection = new List<object>();
-
-            collection.AddRange(CreateMockBlogs());
-            collection.AddRange(CreateMockPosts());
-            collection.AddRange(CreateMockComments());
-
-            return collection.ToArray();
-        }
-
-        private IEnumerable<Comment> CreateMockComments()
-        {
-            var collection = new List<Comment>();
-            var rand = new Random();
-
-            foreach (var post in MockPosts)
-            {
-                int maxCount = rand.Next(5);
-                int count = 0;
-                while (count < maxCount)
-                {
-                    var DateCreatedOffset = new TimeSpan(rand.Next(24), rand.Next(60), rand.Next(60));
-
-                    var comment = new Comment()
-                    {
-                        Username = Faker.Internet.UserName(),
-                        Post = post,
-                        Content = Faker.Lorem.Paragraph(2),
-                        DateCreated = post.DateCreated.Add(DateCreatedOffset)
-                    };
-
-                    collection.Add(comment);
-                    post.Comments.Add(comment);
-                    count += 1;
-                }
-            }
-
-            MockComments = collection;
-            return collection;
-        }
-
-        private IEnumerable<Post> CreateMockPosts()
-        {
-            var collection = new List<Post>();
-
-            foreach(var blog in MockBlogs)
-            {
-                int maxCount = 2;
-                int count = 0;
-                while (count < maxCount)
-                {
-                    var post = new Post()
-                    {
-                        Name = Faker.Name.First(),
-                        Blog = blog,
-                        Content = Faker.Lorem.Paragraph(2),
-                        DateCreated = new DateTime(2012, new Random().Next(1, 13), new Random().Next(1, 28)),
-                        DateModified = DateTime.UtcNow,
-                        Comments = new()
-                    };
-
-                    var rand = new Random();
-                    post.DateModified.Subtract(new TimeSpan(rand.Next(100), rand.Next(24), rand.Next(60), rand.Next(50)));
-
-                    collection.Add(post);
-                    blog.Posts.Add(post);
-                    count += 1;
-                }
-            }
-            
-            MockPosts = collection;
-            return collection;
-        }
-
-        private IEnumerable<Blog> CreateMockBlogs()
-        {
-            var collection = new List<Blog>();
-
-            int maxCount = 3;
-            int count = 0;
-            while(count < maxCount)
-            {
-                var blog = new Blog()
-                {
-                    Name = Faker.Name.First(),
-                    Summary = Faker.Lorem.Sentence(1),
-                    Posts = new List<Post>()
-                };
-                collection.Add(blog);
-                count += 1;
-            }
-
-            MockBlogs = collection;
-            return collection;
-        }
-        #endregion
+        */
     }
 }
