@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Application.Controller
 {
-    [Authorize()]
     public class BlogController : BaseController<Blog>
     {
         public BlogController(IRepository<Blog> repository) : base(repository)
