@@ -18,8 +18,4 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="BlogAPI.Application.Tests" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="ApiModels\" />
-	</ItemGroup>
 </Project>
