@@ -12,10 +12,11 @@ namespace BlogAPI.Storage.InMemory
     public class InMemoryRepository<T> : IRepository<T> where T : DataObject
     {
         protected readonly InMemoryDBContext _dbContext;
-        //private readonly DbSet<T> DbSet;
         public InMemoryRepository(InMemoryDBContext dbContext)
         {
             _dbContext = dbContext;
+
+            SeedData.SeedDatabase(_dbContext);
         }
 
         public bool Delete(Guid Id)

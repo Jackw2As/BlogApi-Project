@@ -46,12 +46,13 @@ namespace BlogAPI.Storage.InMemory
 
             Assert.True(blogResponse.IsSuccessStatusCode);
 
+            var blogLocation = blogResponse.Headers.Location;
 
-            var result = await blogResponse.Content.ReadFromJsonAsync<ActionResult<Blog>>();
-            Assert.NotNull(result);
+            Assert.NotNull(blogLocation);
 
             //Create Post
-            var blog = result!.Value;
+            var blog = await client.GetFromJsonAsync<Blog>(blogLocation);
+
             Assert.NotNull(blog);
             var post = new CreatePost(Faker.Lorem.GetFirstWord(), Faker.Lorem.Paragraph(10), blog!);
             var postContent = JsonContent.Create(post);

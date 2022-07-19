@@ -7,7 +7,7 @@ namespace BlogAPI.Storage.InMemory
     {
         public DbSet<MockDatabaseObject> MockDatabaseObject { get; set; }
 
-        public MockInMemoryDBContext(DbContextOptions options) : base(options, false)
+        public MockInMemoryDBContext(DbContextOptions options) : base(options)
         {
 
         }

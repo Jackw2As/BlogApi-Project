@@ -3,31 +3,38 @@ using BlogAPI.Storage.InMemory;
 
 public static class SeedData
 {
+
+    private static bool MethodAlreadyCalled = false;
+
     public static void SeedDatabase(InMemoryDBContext context)
     {
-        if (context.Database.EnsureCreated())
-        {
-            var seedData = CreateSeedData();
-            context.AddRange(seedData);
-            context.SaveChanges();
-        }
+        if (MethodAlreadyCalled) return;
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        var seedData = CreateSeedData();
+        context.AddRange(seedData);
+
+        context.SaveChanges();
+
+        MethodAlreadyCalled = true;
     }
-    private static object[] CreateSeedData()
+    private static IEnumerable<object> CreateSeedData()
     {
         var collection = new List<object>();
 
         var blogs = CreateBlogs();
-        var posts = CreatPosts(blogs.ToList());
-        var comments = CreateComments(posts.ToList());
+        var posts = CreatPosts(blogs);
+        var comments = CreateComments(posts);
 
         collection.AddRange(blogs);
         collection.AddRange(posts);
         collection.AddRange(comments);
 
-        return collection.ToArray();
+        return collection;
     }
 
-    private static IEnumerable<Comment> CreateComments(List<Post> posts)
+    public static IEnumerable<Comment> CreateComments(IEnumerable<Post> posts)
     {
         var collection = new List<Comment>();
         var rand = new Random();
@@ -56,7 +63,7 @@ public static class SeedData
         return collection;
     }
 
-    private static IEnumerable<Post> CreatPosts(List<Blog> blogs)
+    public static IEnumerable<Post> CreatPosts(IEnumerable<Blog> blogs)
     {
         var collection = new List<Post>();
 
@@ -87,7 +94,7 @@ public static class SeedData
         return collection;
     }
 
-    private static IEnumerable<Blog> CreateBlogs()
+    public static IEnumerable<Blog> CreateBlogs()
     {
         var collection = new List<Blog>();
 
