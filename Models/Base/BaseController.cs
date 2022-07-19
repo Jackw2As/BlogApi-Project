@@ -17,7 +17,7 @@ namespace Domain.Base
 
         //Returns a Specific Model
         [HttpGet(Order = 100)]
-        internal protected virtual ActionResult<T> Get(Guid Id)
+        internal protected virtual ActionResult<T> GetById(Guid Id)
         {
             if(!Repository.Exists(Id))
             {
@@ -45,7 +45,7 @@ namespace Domain.Base
                     Repository.Save(model);
                 }
 
-                return CreatedAtAction(nameof(Post), nameof(this.GetType), model, model);
+                return CreatedAtAction("GetById", new { id = model.ID }, model);
             }
             catch(Exception ex)
             {

@@ -64,7 +64,7 @@ public class BaseControllerUnitTests
         var item = testData.First();
 
         //Act
-        var result = controller.Get(item.ID);
+        var result = controller.GetById(item.ID);
 
         //Assert
         Assert.NotNull(result);
@@ -81,7 +81,7 @@ public class BaseControllerUnitTests
         var id = Guid.NewGuid();
 
         //Act
-        var result = controller.Get(id);
+        var result = controller.GetById(id);
 
         //Assert
         Assert.NotNull(result);
