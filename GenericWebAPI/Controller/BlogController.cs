@@ -9,8 +9,11 @@ namespace BlogAPI.Application.Controller;
 
 public class BlogController : BaseController<Blog>
 {
-    public BlogController(IRepository<Blog> repository) : base(repository)
+    public IRepository<Post> PostRepository { get; }
+
+    public BlogController(IRepository<Blog> repository, IRepository<Post> PostRepository) : base(repository)
     {
+        this.PostRepository = PostRepository;
     }
 
     [HttpPost]
@@ -27,9 +30,28 @@ public class BlogController : BaseController<Blog>
     }
 
     [HttpGet]
-    public ActionResult<Blog> GetById(Guid id)
+    public ActionResult<GetBlog> GetById(Guid id)
     {
-        return base.GetById(id);
+        var item = base.GetById(id).Value;
+        if (item == null)
+        {
+            return NotFound(item);
+        }
+
+        var posts = new List<Post>();
+
+        foreach (var postId in item.PostIds)
+        {
+            var post = PostRepository.GetByID(postId);
+            posts.Add(post);
+        }
+
+        return new(new GetBlog(){
+            ID = item.ID,
+            Name = item.Name,
+            Summary = item.Summary,
+            Posts = posts
+        });
     }
 }
 

@@ -2,16 +2,23 @@
 using BlogAPI.Storage.DatabaseModels;
 using Domain.Base;
 using Domain.Interface;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Application.Controller
 {
     public class PostController : BaseController<Post>
     {
-        public PostController(IRepository<Post> repository) : base(repository)
-        {
+        public IRepository<Comment> CommentRepository { get; }
+        public IRepository<Blog> BlogRepository { get; }
 
+        public PostController(
+                                IRepository<Post> repository,
+                                IRepository<Comment> commentRepository,
+                                IRepository<Blog> blogRepository
+                              ) : base(repository)
+        {
+            CommentRepository = commentRepository;
+            BlogRepository = blogRepository;
         }
 
         [HttpPost]
@@ -20,12 +27,11 @@ namespace Application.Controller
             var post = new Post()
             {
                 ID = model.ID,
-                Blog = model.Blog,
-                Comments = new(),
+                BlogId = model.Blog.ID,
                 Content = model.Content,
                 DateCreated = DateTime.UtcNow,
                 DateModified = DateTime.UtcNow,
-                Name = model.Title,
+                Title = model.Title,
                 Summary = model.Summary,
             };
 
@@ -33,9 +39,32 @@ namespace Application.Controller
         }
 
         [HttpGet]
-        public ActionResult<Post> GetById(Guid id)
+        public ActionResult<GetPost> GetById(Guid id)
         {
-            return base.GetById(id);
+            var item = base.GetById(id).Value;
+            if (item == null)
+            {
+                return NotFound(item);
+            }
+
+            var comments = new List<Comment>();
+
+            foreach (var postId in item.CommentIds)
+            {
+                var comment = CommentRepository.GetByID(postId);
+                comments.Add(comment);
+            }
+
+            var blog = BlogRepository.GetByID(item.BlogId);
+
+            return new(new GetPost()
+            {
+                ID = item.ID,
+                Title = item.Title,
+                Summary = item.Summary,
+                Comments = comments,
+                Blog = blog
+            });
         }
     }
 }

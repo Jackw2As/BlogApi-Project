@@ -13,9 +13,11 @@ namespace BlogAPI.Application.Controller;
 
 public class CommentController : BaseController<Comment>
 {
-    public CommentController(IRepository<Comment> repository) : base(repository)
-    {
+    public IRepository<Post> PostRepository { get; }
 
+    public CommentController(IRepository<Comment> repository, IRepository<Post> postRepository) : base(repository)
+    {
+        PostRepository = postRepository;
     }
 
     [HttpPost]
@@ -27,7 +29,7 @@ public class CommentController : BaseController<Comment>
             Content = model.Content,
             DateCreated = DateTime.UtcNow,
             DateModfied = DateTime.UtcNow,
-            Post = model.Post,
+            PostId = model.Post.ID,
             Username = model.Username,
         };
 
@@ -35,8 +37,22 @@ public class CommentController : BaseController<Comment>
     }
 
     [HttpGet]
-    public ActionResult<Comment> GetById(Guid id)
+    public ActionResult<GetComment> GetById(Guid id)
     {
-        return base.GetById(id);
+        var item = base.GetById(id).Value;
+        if(item == null)
+        {
+            return NotFound(item);
+        }
+
+        var post = PostRepository.GetByID(item.PostId);
+
+        return new(new GetComment()
+        {
+            ID = item.ID,
+            Content = item.Content,
+            Username = item.Username,
+            Post = post
+        });
     }
 }

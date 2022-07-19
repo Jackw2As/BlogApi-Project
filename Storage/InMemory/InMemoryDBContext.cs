@@ -22,9 +22,22 @@ namespace BlogAPI.Storage.InMemory
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Blog>(entity => entity.ToTable("Blogs"));
-            modelBuilder.Entity<Post>(entity => entity.ToTable("Posts"));
-            modelBuilder.Entity<Comment>(entity => entity.ToTable("Comments"));
+            modelBuilder.Entity<Blog>(entity =>
+            {
+                entity.ToTable("Blogs");
+            });
+
+            modelBuilder.Entity<Post>(entity =>
+            {
+                entity.ToTable("Posts");
+                entity.HasMany<Comment>().WithOne();
+            });
+
+            modelBuilder.Entity<Comment>(entity =>
+            {
+                entity.ToTable("Comments");
+
+            });
         }
     }
 }

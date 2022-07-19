@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlogAPI.Storage.DatabaseModels
 {
@@ -7,7 +8,7 @@ namespace BlogAPI.Storage.DatabaseModels
     {
         [Required]
         [StringLength(100, MinimumLength = 3)]
-        public string Name { get; set; }
+        public string Title { get; set; }
 
         [MaxLength(255)]
         public string? Summary { get; set; }
@@ -18,9 +19,10 @@ namespace BlogAPI.Storage.DatabaseModels
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
 
-        public Blog Blog { get; set; }
+        [Required]
+        public Guid BlogId { get; set; }
 
-        public List<Comment> Comments { get; set; }
+        public IEnumerable<Guid> CommentIds { get; set; }
 
 
         public Post()

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlogAPI.Storage.DatabaseModels
 {
@@ -12,7 +13,7 @@ namespace BlogAPI.Storage.DatabaseModels
         [StringLength(300, MinimumLength = 1)]
         public string Summary { get; set; }
 
-        public List<Post> Posts { get; set; } = new();
+        public IEnumerable<Guid> PostIds { get; set; }
 
         public Blog()
         {
