@@ -13,5 +13,11 @@ namespace BlogAPI.Storage.DatabaseModels
         public string Summary { get; set; }
 
         public List<Post> Posts { get; set; } = new();
+
+        public Blog()
+        {
+            Name = "Enter Name Here!";
+            Summary = "Default Summary Text";
+        }
     }
 }
