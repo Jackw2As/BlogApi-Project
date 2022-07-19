@@ -37,7 +37,6 @@ namespace BlogAPI.Storage.InMemory
         {
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
-            var server = ApplicationFactory.Server;
 
             //Create Blog
             var createBlog = new CreateBlog(Faker.Name.First());
