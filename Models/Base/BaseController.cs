@@ -50,6 +50,8 @@ namespace Domain.Base
             catch(Exception ex)
             {
                 ModelState.AddModelError("", ex.Message);
+                if(ex.InnerException != null)
+                ModelState.AddModelError("", ex.InnerException.ToString());
                 return BadRequest(ModelState);
             }
         }
