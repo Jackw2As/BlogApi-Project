@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<InMemoryDBContext>(
     options =>
     {
-        options.UseSqlite("Filename =:memory:", options =>
+        options.UseSqlite("DataSource=file::memory:?cache=shared", options =>
         {
         });
     });
@@ -40,21 +40,13 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-//var Context = app.Services.GetService<InMemoryDBContext>();
-//SeedData.SeedDatabase(Context);
+app.UseDeveloperExceptionPage();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//Swagger
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
-//app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
