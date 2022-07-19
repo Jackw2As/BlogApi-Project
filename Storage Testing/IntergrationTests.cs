@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http.ModelBinding;
 
 namespace BlogAPI.Storage.InMemory
 {
@@ -64,7 +65,6 @@ namespace BlogAPI.Storage.InMemory
         {
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
-            var server = ApplicationFactory.Server;
 
             //Act
             var post = new CreatePost("test", "test content", null!);
@@ -72,7 +72,7 @@ namespace BlogAPI.Storage.InMemory
             var postResponse = await client.PostAsync("/blog", postContent);
 
             //Assert
-            Assert.True(postResponse.IsSuccessStatusCode);
+            Assert.False(postResponse.IsSuccessStatusCode);
         }
 
         /*

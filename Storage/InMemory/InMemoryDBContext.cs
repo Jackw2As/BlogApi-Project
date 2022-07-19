@@ -9,9 +9,12 @@ namespace BlogAPI.Storage.InMemory
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Post> Posts { get; set; }
 
-        public InMemoryDBContext(DbContextOptions options) : base(options)
+        public InMemoryDBContext(DbContextOptions options, bool seedData = true) : base(options)
         {
-            
+            if(seedData)
+            {
+                SeedData.SeedDatabase(this);
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -22,8 +25,6 @@ namespace BlogAPI.Storage.InMemory
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            SeedData.SeedDatabase(this);
         }
     }
 }
