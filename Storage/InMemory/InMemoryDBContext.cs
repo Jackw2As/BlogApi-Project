@@ -11,7 +11,7 @@ namespace BlogAPI.Storage.InMemory
 
         public InMemoryDBContext(DbContextOptions options) : base(options)
         {
-
+            
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -22,6 +22,8 @@ namespace BlogAPI.Storage.InMemory
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            SeedData.SeedDatabase(this);
         }
     }
 }
