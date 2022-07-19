@@ -10,14 +10,14 @@ namespace Domain.Base
     public abstract class BaseController<T> : ControllerBase where T : BaseObject
     {
         protected IRepository<T> Repository { get; init; }
-        public BaseController(IRepository<T> repository)
+        internal protected BaseController(IRepository<T> repository)
         {
             Repository = repository;
         }
 
         //Returns a Specific Model
-        [HttpGet]
-        public virtual ActionResult<T> Get(Guid Id)
+        [HttpGet(Order = 100)]
+        internal protected virtual ActionResult<T> Get(Guid Id)
         {
             if(!Repository.Exists(Id))
             {
@@ -27,10 +27,10 @@ namespace Domain.Base
         }
 
         //Updates a Model
-        [HttpPost]
+        [HttpPost(Order = 100)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual ActionResult<T> Post(T model)
+        internal protected virtual ActionResult<T> Post(T model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -55,8 +55,8 @@ namespace Domain.Base
         }
 
         //Deletes a Model.
-        [HttpDelete]
-        public virtual IActionResult Delete(Guid Id)
+        [HttpDelete(Order = 100)]
+        internal protected virtual IActionResult Delete(Guid Id)
         {
             if(!Repository.Exists(Id))
             {
