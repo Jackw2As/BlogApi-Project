@@ -20,7 +20,7 @@ namespace BlogAPI.Storage.DatabaseModels
         public DateTime DateModfied { get; set; }
 
         [Required]
-        public Guid PostId { get; set; }
+        public string PostId { get; set; }
 
         public Comment()
         {

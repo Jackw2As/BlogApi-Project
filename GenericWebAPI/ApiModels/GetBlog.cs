@@ -8,6 +8,15 @@ namespace BlogAPI.Application.ApiModels
         public string Name { get; set; }
         public string? Summary { get; set; }
 
-        public List<Post> Posts { get; set; }
+        public GetBlog()
+        {
+            Name = string.Empty;
+        }
+
+        public GetBlog(Blog blog)
+        {
+            Name = blog.Name;
+            Summary = blog.Summary;
+        }
     }
 }

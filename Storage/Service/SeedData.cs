@@ -50,13 +50,13 @@ public static class SeedData
                 var comment = new Comment()
                 {
                     Username = Faker.Internet.UserName(),
-                    PostId = post.ID,
+                    PostId = post.ID.ToString(),
                     Content = Faker.Lorem.Paragraph(2),
                     DateCreated = post.DateCreated.Add(DateCreatedOffset)
                 };
 
                 collection.Add(comment);
-                post.CommentIds.Append(comment.ID);
+                post.CommentIds.Append(comment.ID.ToString());
                 count += 1;
             }
         }
@@ -76,7 +76,7 @@ public static class SeedData
                 var post = new Post()
                 {
                     Title = Faker.Name.First(),
-                    BlogId = blog.ID,
+                    BlogId = blog.ID.ToString(),
                     Content = Faker.Lorem.Paragraph(2),
                     DateCreated = new DateTime(2012, new Random().Next(1, 13), new Random().Next(1, 28)),
                     DateModified = DateTime.UtcNow,
@@ -86,7 +86,7 @@ public static class SeedData
                 post.DateModified.Subtract(new TimeSpan(rand.Next(100), rand.Next(24), rand.Next(60), rand.Next(50)));
 
                 collection.Add(post);
-                blog.PostIds.Append(post.ID);
+                blog.PostIds.Append(post.ID.ToString());
                 count += 1;
             }
         }

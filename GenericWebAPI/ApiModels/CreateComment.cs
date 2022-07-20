@@ -7,13 +7,19 @@ namespace BlogAPI.Application.ApiModels
     {
         public string Username { get; set; }
         public string Content { get; set; }
-        public Post Post { get; set; }
+        public Guid PostId { get; set; }
 
-        public CreateComment(string username, string content, Post post)
+        public CreateComment(string username, string content, Guid postID)
         {
             Username = username;
             Content = content;
-            Post = post;
+            PostId = postID;
+        }
+        public CreateComment(string username, string content, GetPost post)
+        {
+            Username = username;
+            Content = content;
+            PostId = post.ID;
         }
     }
 }

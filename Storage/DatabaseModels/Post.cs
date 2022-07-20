@@ -20,9 +20,9 @@ namespace BlogAPI.Storage.DatabaseModels
         public DateTime DateModified { get; set; }
 
         [Required]
-        public Guid BlogId { get; set; }
+        public string BlogId { get; set; }
 
-        public IEnumerable<Guid> CommentIds { get; set; }
+        public List<string> CommentIds { get; set; } = new();
 
 
         public Post()

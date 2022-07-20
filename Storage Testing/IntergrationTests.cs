@@ -51,7 +51,7 @@ namespace BlogAPI.Storage.InMemory
             Assert.NotNull(blogLocation);
 
             //Create Post
-            var blog = await client.GetFromJsonAsync<Blog>(blogLocation);
+            var blog = await client.GetFromJsonAsync<GetBlog>(blogLocation);
 
             Assert.NotNull(blog);
             var post = new CreatePost(Faker.Lorem.GetFirstWord(), Faker.Lorem.Paragraph(10), blog!);

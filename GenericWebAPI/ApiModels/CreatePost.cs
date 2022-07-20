@@ -9,14 +9,27 @@ namespace BlogAPI.Application.ApiModels
         public string Content { get; set; }
         public string? Summary { get; set; }
 
-        public Blog Blog { get; set; }
+        public Guid BlogID { get; set; }
 
-        public CreatePost(string title, string content, Blog blog, string? summary = null)
+        public CreatePost()
+        {
+            Title = String.Empty;
+            Content = String.Empty;
+        }
+        public CreatePost(string title, string content, Guid blogID, string? summary = null)
         {
             Title = title;
             Content = content;
-            Blog = blog;
             Summary = summary;
+            BlogID = blogID;
         }
+        public CreatePost(string title, string content, GetBlog blog, string? summary = null)
+        {
+            Title = title;
+            Content = content;
+            Summary = summary;
+            BlogID = blog.ID;
+        }
+        
     }
 }

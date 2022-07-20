@@ -14,10 +14,15 @@ namespace BlogAPI.Application.Controller;
 public class CommentController : BaseController<Comment>
 {
     public IRepository<Post> PostRepository { get; }
+    public IRepository<Blog> BlogRepository { get; }
 
-    public CommentController(IRepository<Comment> repository, IRepository<Post> postRepository) : base(repository)
+    public CommentController(IRepository<Comment> repository, 
+                            IRepository<Post> postRepository, 
+                            IRepository<Blog> blogRepository)
+        : base(repository)
     {
         PostRepository = postRepository;
+        BlogRepository = blogRepository;
     }
 
     [HttpPost]
@@ -29,7 +34,7 @@ public class CommentController : BaseController<Comment>
             Content = model.Content,
             DateCreated = DateTime.UtcNow,
             DateModfied = DateTime.UtcNow,
-            PostId = model.Post.ID,
+            PostId = model.PostId.ToString(),
             Username = model.Username,
         };
 
@@ -37,7 +42,7 @@ public class CommentController : BaseController<Comment>
     }
 
     [HttpGet]
-    public ActionResult<GetComment> GetById(Guid id)
+    public ActionResult<GetComment> GetById([FromQuery]Guid id)
     {
         var item = base.GetById(id).Value;
         if(item == null)
@@ -45,14 +50,43 @@ public class CommentController : BaseController<Comment>
             return NotFound(item);
         }
 
-        var post = PostRepository.GetByID(item.PostId);
+        var post = PostRepository.GetByID(Guid.Parse(item.PostId));
+        var blog = BlogRepository.GetByID(Guid.Parse(post.BlogId));
+
+        var getblog = new GetBlog(blog);
+        var getPost = new GetPost(post, getblog);
 
         return new(new GetComment()
         {
             ID = item.ID,
             Content = item.Content,
             Username = item.Username,
-            Post = post
+            Post = getPost
         });
+    }
+
+    [HttpGet("List")]
+    public ActionResult<List<GetComment>> GetAll([FromQuery(Name = "Post ID")] Guid PostId)
+    {
+        var post = PostRepository.GetByID(PostId);
+        if (post == null)
+        {
+            return NotFound(PostId);
+        }
+        var blog = BlogRepository.GetByID(Guid.Parse(post.BlogId));
+        var getblog = new GetBlog(blog);
+        var getPost = new GetPost(post, getblog);
+
+        var comments = Repository.GetByQuery(comment => comment.PostId == PostId.ToString());
+
+        
+        var GetComments = new List<GetComment>();
+        foreach (var comment in comments)
+        {
+            GetComments.Add(
+            new GetComment(comment, getPost));
+        }
+
+        return new(GetComments);
     }
 }

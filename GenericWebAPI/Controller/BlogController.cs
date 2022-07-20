@@ -30,19 +30,19 @@ public class BlogController : BaseController<Blog>
     }
 
     [HttpGet]
-    public ActionResult<GetBlog> GetById(Guid id)
+    public ActionResult<GetBlog> GetById([FromQuery]Guid id)
     {
         var item = base.GetById(id).Value;
         if (item == null)
         {
-            return NotFound(item);
+            return NoContent();
         }
 
         var posts = new List<Post>();
 
         foreach (var postId in item.PostIds)
         {
-            var post = PostRepository.GetByID(postId);
+            var post = PostRepository.GetByID(Guid.Parse(postId));
             posts.Add(post);
         }
 
@@ -50,8 +50,20 @@ public class BlogController : BaseController<Blog>
             ID = item.ID,
             Name = item.Name,
             Summary = item.Summary,
-            Posts = posts
         });
+    }
+
+    [HttpGet("List")]
+    public ActionResult<List<GetBlog>> GetAll()
+    {
+        var blogs = Repository.GetByQuery(blog => true);
+
+        List<GetBlog> getBlogs = new List<GetBlog>();
+        foreach (var blog in blogs)
+        {
+            getBlogs.Add(new(blog));
+        }
+        return new(getBlogs);
     }
 }
 
