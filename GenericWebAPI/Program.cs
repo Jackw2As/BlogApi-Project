@@ -2,53 +2,68 @@ using BlogAPI.Storage.DatabaseModels;
 using Domain.Interface;
 using BlogAPI.Storage.InMemory;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 
-var builder = WebApplication.CreateBuilder(args);
+public class Program : IDisposable
+{
+    private static SqliteConnection _connection = new("DataSource=file::memory:?cache=shared");
 
-builder.Services.AddDbContext<InMemoryDBContext>(
-    options =>
+    static public void Main(string[] args)
     {
-        options.UseSqlite("DataSource=file::memory:?cache=shared", options =>
-        {
-        });
-    });
+        var builder = BuildWebApplication(args);
 
-builder.Services.AddTransient<IRepository<Blog>, InMemoryRepository<Blog>>(
-    (provider) =>
+        var app = builder.Build();
+
+        app.UseDeveloperExceptionPage();
+
+        //Swagger
+        app.UseSwagger();
+        app.UseSwaggerUI();
+
+        app.UseHttpsRedirection();
+        app.MapControllers();
+
+        app.Run();
+    }
+
+    private static WebApplicationBuilder BuildWebApplication(string[] args)
     {
-        var context = provider.GetRequiredService<InMemoryDBContext>();
-        return new InMemoryRepository<Blog>(context);
-    });
-builder.Services.AddTransient<IRepository<Post>, InMemoryRepository<Post>>(
-    provider =>
-    {
-        var context = provider.GetRequiredService<InMemoryDBContext>();
-        return new InMemoryRepository<Post>(context);
-    });
+        var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddTransient<IRepository<Comment>, InMemoryRepository<Comment>>(
-    provider =>
-    {
-        var context = provider.GetRequiredService<InMemoryDBContext>();
-        return new InMemoryRepository<Comment>(context);
-    });
+        builder.Services.AddDbContext<InMemoryDBContext>(
+            options =>
+            {
+                options.UseSqlite(_connection);
+                options.EnableSensitiveDataLogging(true);
+            });
+
+        builder.Services.AddTransient<IRepository<Blog>, InMemoryRepository<Blog>>(
+            (provider) =>
+            {
+                var context = provider.GetRequiredService<InMemoryDBContext>();
+                return new InMemoryRepository<Blog>(context);
+            });
+        builder.Services.AddTransient<IRepository<Post>, InMemoryRepository<Post>>(
+            provider =>
+            {
+                var context = provider.GetRequiredService<InMemoryDBContext>();
+                return new InMemoryRepository<Post>(context);
+            });
+
+        builder.Services.AddTransient<IRepository<Comment>, InMemoryRepository<Comment>>(
+            provider =>
+            {
+                var context = provider.GetRequiredService<InMemoryDBContext>();
+                return new InMemoryRepository<Comment>(context);
+            });
 
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+        return builder;
+    }
 
-app.UseDeveloperExceptionPage();
-
-//Swagger
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.UseHttpsRedirection();
-app.MapControllers();
-
-app.Run();
-
-public partial class Program { }
+    public void Dispose() => _connection?.Dispose();
+}

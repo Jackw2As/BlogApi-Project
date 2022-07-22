@@ -26,6 +26,7 @@ public class InMemoryDBContext : DbContext
         modelBuilder.Entity<Blog>(entity =>
         {
             entity.ToTable("Blogs");
+            entity.HasKey("ID");
 
             entity.Property(e => e.PostIds).HasConversion(new IEnumerableGuidToString());
         });
@@ -33,6 +34,7 @@ public class InMemoryDBContext : DbContext
         modelBuilder.Entity<Post>(entity =>
         {
             entity.ToTable("Posts");
+            entity.HasKey("ID");
 
             entity.Property(e => e.CommentIds).HasConversion(new IEnumerableGuidToString());
         });
@@ -40,6 +42,7 @@ public class InMemoryDBContext : DbContext
         modelBuilder.Entity<Comment>(entity =>
         {
             entity.ToTable("Comments");
+            entity.HasKey("ID");
 
         });
 

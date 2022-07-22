@@ -23,6 +23,7 @@ namespace BlogAPI.Application.ApiModels
             Title = post.Title;
             Content = post.Content;
             Summary = post.Summary;
+            ID = post.ID;
 
             if (post.BlogId != blog.ID.ToString())
             {

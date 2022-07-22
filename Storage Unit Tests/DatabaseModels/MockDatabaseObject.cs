@@ -6,6 +6,6 @@ public class MockDatabaseObject : DataObject
 
     public MockDatabaseObject()
     {
-        ID = Guid.NewGuid();
+        ID = Guid.NewGuid().ToString();
     }
 }

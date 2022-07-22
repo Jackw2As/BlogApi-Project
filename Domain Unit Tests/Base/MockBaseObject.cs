@@ -8,7 +8,7 @@ namespace BlogAPI.Domain.Base
 
         public MockBaseObject()
         {
-            ID = Guid.NewGuid();
+            ID = Guid.NewGuid().ToString();
         }
     }
 }

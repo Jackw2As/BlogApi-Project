@@ -3,13 +3,13 @@ using Domain.Base;
 
 namespace BlogAPI.Application.ApiModels
 {
-    public class CreateComment : BaseObject
+    public class CreateComment
     {
         public string Username { get; set; }
         public string Content { get; set; }
-        public Guid PostId { get; set; }
+        public string PostId { get; set; }
 
-        public CreateComment(string username, string content, Guid postID)
+        public CreateComment(string username, string content, string postID)
         {
             Username = username;
             Content = content;
@@ -20,6 +20,11 @@ namespace BlogAPI.Application.ApiModels
             Username = username;
             Content = content;
             PostId = post.ID;
+        }
+
+        public CreateComment()
+        {
+            
         }
     }
 }

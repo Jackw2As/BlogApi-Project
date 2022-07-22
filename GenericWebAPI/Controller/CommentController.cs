@@ -30,7 +30,7 @@ public class CommentController : BaseController<Comment>
     {
         var comment = new Comment()
         {
-            ID = model.ID,
+            ID = Guid.NewGuid().ToString(),
             Content = model.Content,
             DateCreated = DateTime.UtcNow,
             DateModfied = DateTime.UtcNow,
@@ -44,14 +44,15 @@ public class CommentController : BaseController<Comment>
     [HttpGet]
     public ActionResult<GetComment> GetById([FromQuery]Guid id)
     {
-        var item = base.GetById(id).Value;
-        if(item == null)
+        var result = base.GetById(id.ToString());
+        var item = (result.Result as ObjectResult).Value as Comment;
+        if (item == null)
         {
-            return NotFound(item);
+            return new NotFoundObjectResult(item);
         }
 
-        var post = PostRepository.GetByID(Guid.Parse(item.PostId));
-        var blog = BlogRepository.GetByID(Guid.Parse(post.BlogId));
+        var post = PostRepository.GetByID(item.PostId);
+        var blog = BlogRepository.GetByID(post.BlogId);
 
         var getblog = new GetBlog(blog);
         var getPost = new GetPost(post, getblog);
@@ -68,12 +69,12 @@ public class CommentController : BaseController<Comment>
     [HttpGet("List")]
     public ActionResult<List<GetComment>> GetAll([FromQuery(Name = "Post ID")] Guid PostId)
     {
-        var post = PostRepository.GetByID(PostId);
+        var post = PostRepository.GetByID(PostId.ToString());
         if (post == null)
         {
             return NotFound(PostId);
         }
-        var blog = BlogRepository.GetByID(Guid.Parse(post.BlogId));
+        var blog = BlogRepository.GetByID(post.BlogId);
         var getblog = new GetBlog(blog);
         var getPost = new GetPost(post, getblog);
 
@@ -87,6 +88,6 @@ public class CommentController : BaseController<Comment>
             new GetComment(comment, getPost));
         }
 
-        return new(GetComments);
+        return new ObjectResult(GetComments);
     }
 }

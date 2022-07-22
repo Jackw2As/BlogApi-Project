@@ -17,6 +17,7 @@ namespace BlogAPI.Application.ApiModels
         {
             Name = blog.Name;
             Summary = blog.Summary;
+            ID = blog.ID;
         }
     }
 }

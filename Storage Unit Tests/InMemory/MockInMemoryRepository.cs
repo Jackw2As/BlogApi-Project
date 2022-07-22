@@ -11,7 +11,7 @@ namespace BlogAPI.Storage.InMemory
 {
     public class MockInMemoryRepository : InMemoryRepository<MockDatabaseObject>
     {
-        public MockInMemoryRepository(MockInMemoryDBContext dbContext) : base(dbContext)
+        public MockInMemoryRepository(MockInMemoryDBContext dbContext) : base(dbContext, false)
         {
         }
     }

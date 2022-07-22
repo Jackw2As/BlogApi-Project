@@ -26,6 +26,8 @@ namespace BlogAPI.Application.ApiModels
                 throw new ArgumentException("Post is not related to Comment! Post has to be comment Parent.");
             }
             Post = post;
+
+            ID = comment.ID;
         }
     }
 }

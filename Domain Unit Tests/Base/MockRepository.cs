@@ -22,7 +22,7 @@ public class MockRepository<T> : IRepository<T> where T : BaseObject
         return true;
     }
 
-    public T GetByID(Guid Id) => Storage.First(p => p.ID == Id);
+    public T GetByID(string Id) => Storage.First(p => p.ID == Id);
 
     public bool Modify(T model)
     {
@@ -31,7 +31,7 @@ public class MockRepository<T> : IRepository<T> where T : BaseObject
         return true;
     }
 
-    public bool Delete(Guid Id)
+    public bool Delete(string Id)
     {
         var model = Storage.Find(p => p.ID == Id);
         if(model == null) return false;
@@ -44,7 +44,7 @@ public class MockRepository<T> : IRepository<T> where T : BaseObject
         return Storage.Where(query);
     }
 
-    public bool Exists(Guid Id)
+    public bool Exists(string Id)
     {
         if(Storage.Where(p=> p.ID == Id).Count() > 0) return true;
         return false;

@@ -16,7 +16,7 @@ namespace Domain.Interface
         /// <summary>
         /// Finds existing data in storage
         /// </summary>
-        T GetByID(Guid Id);
+        T GetByID(string Id);
 
         /// <summary>
         /// Finds existing data in storage
@@ -32,12 +32,12 @@ namespace Domain.Interface
         /// <summary>
         /// Deletes existing data in storage permanently
         /// </summary>
-        bool Delete(Guid Id);
+        bool Delete(string Id);
 
         /// <summary>
         /// returns true if an object that meets the criteria exists
         /// </summary>
-        bool Exists(Guid Id);
+        bool Exists(string Id);
         /// <summary>
         /// returns true if an object that meets the criteria exists
         /// </summary>

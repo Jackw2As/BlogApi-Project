@@ -21,7 +21,7 @@ public class BlogController : BaseController<Blog>
     {
         var blog = new Blog()
         {
-            ID = model.ID,
+            ID = Guid.NewGuid().ToString(),
             Name = model.Name,
             Summary = model.Summary ?? "My Fantastic New Blog!!!",
         };
@@ -30,23 +30,17 @@ public class BlogController : BaseController<Blog>
     }
 
     [HttpGet]
-    public ActionResult<GetBlog> GetById([FromQuery]Guid id)
+    public ActionResult<GetBlog> GetById([FromQuery]string id)
     {
-        var item = base.GetById(id).Value;
+        var result = base.GetById(id);
+        var item = (result.Result as ObjectResult).Value as Blog;
+
         if (item == null)
         {
-            return NoContent();
+            return new NotFoundObjectResult(item);
         }
 
-        var posts = new List<Post>();
-
-        foreach (var postId in item.PostIds)
-        {
-            var post = PostRepository.GetByID(Guid.Parse(postId));
-            posts.Add(post);
-        }
-
-        return new(new GetBlog(){
+        return new ObjectResult(new GetBlog(){
             ID = item.ID,
             Name = item.Name,
             Summary = item.Summary,
@@ -63,7 +57,7 @@ public class BlogController : BaseController<Blog>
         {
             getBlogs.Add(new(blog));
         }
-        return new(getBlogs);
+        return new ObjectResult(getBlogs);
     }
 }
 

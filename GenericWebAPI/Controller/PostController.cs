@@ -26,7 +26,7 @@ namespace Application.Controller
         {
             var post = new Post()
             {
-                ID = model.ID,
+                ID = Guid.NewGuid().ToString(),
                 BlogId = model.BlogID.ToString(),
                 Content = model.Content,
                 DateCreated = DateTime.UtcNow,
@@ -41,13 +41,15 @@ namespace Application.Controller
         [HttpGet()]
         public ActionResult<GetPost> GetById([FromQuery] Guid id)
         {
-            var item = base.GetById(id).Value;
+            var result = base.GetById(id.ToString());
+            var item = (result.Result as ObjectResult).Value as Post;
+
             if (item == null)
             {
-                return NotFound(item);
+                return new NotFoundObjectResult(item);
             }
 
-            var blog = BlogRepository.GetByID(Guid.Parse(item.BlogId));
+            var blog = BlogRepository.GetByID(item.BlogId);
             var getblog = new GetBlog(blog);
 
             return new(new GetPost()
@@ -63,10 +65,10 @@ namespace Application.Controller
         public ActionResult<List<GetPost>> GetAll([FromQuery]Guid BlogId)
         {
 
-            var blog = BlogRepository.GetByID(BlogId);
+            var blog = BlogRepository.GetByID(BlogId.ToString());
             if (blog == null)
             {
-                return NotFound(BlogId);
+                return new NotFoundObjectResult(BlogId);
             }
 
             var posts = Repository.GetByQuery(post => post.BlogId == BlogId.ToString());
@@ -87,7 +89,7 @@ namespace Application.Controller
                 });
             }
 
-            return new(GetPosts);
+            return new ObjectResult(GetPosts);
         }
     }
 }

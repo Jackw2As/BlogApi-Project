@@ -2,7 +2,7 @@
 
 namespace BlogAPI.Application.ApiModels
 {
-    public class CreateBlog : BaseObject
+    public class CreateBlog
     {
         public string Name { get; set; }
 

@@ -12,14 +12,15 @@ namespace BlogAPI.Storage.InMemory
     public class InMemoryRepository<T> : IRepository<T> where T : DataObject
     {
         protected readonly InMemoryDBContext _dbContext;
-        public InMemoryRepository(InMemoryDBContext dbContext)
+        public InMemoryRepository(InMemoryDBContext dbContext, bool seedDatabase = true)
         {
             _dbContext = dbContext;
 
+            if(seedDatabase)
             SeedData.SeedDatabase(_dbContext);
         }
 
-        public bool Delete(Guid Id)
+        public bool Delete(string Id)
         {
             var DbSet = _dbContext.Set<T>();
             if (Exists(Id))
@@ -31,7 +32,7 @@ namespace BlogAPI.Storage.InMemory
             return false;
         }
 
-        public bool Exists(Guid Id)
+        public bool Exists(string Id)
         {
             var DbSet = _dbContext.Set<T>();
 
@@ -62,7 +63,7 @@ namespace BlogAPI.Storage.InMemory
             return false;
         }
 
-        public T GetByID(Guid Id)
+        public T GetByID(string Id)
         {
             var DbSet = _dbContext.Set<T>();
             

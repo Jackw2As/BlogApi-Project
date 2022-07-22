@@ -5,9 +5,15 @@ namespace BlogAPI.Storage.DatabaseModels
 {
     public class DataObject : BaseObject
     {
-        [Key]
-        public override Guid ID { get => base.ID; init => base.ID = value; }
+        public DataObject()
+        {
+            ID = Guid.NewGuid().ToString();
+        }
 
+        public DataObject(Guid ID) : base(ID)
+        {
+
+        }
         public override bool Equals(object? obj)
         {
             if(obj is DataObject)

@@ -78,7 +78,7 @@ public class BaseControllerUnitTests
         //Arange
         var testData = CreateTestData();
         var controller = new MockController(testData);
-        var id = Guid.NewGuid();
+        var id = Guid.NewGuid().ToString();
 
         //Act
         var result = controller.GetById(id);

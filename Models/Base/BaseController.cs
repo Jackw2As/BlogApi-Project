@@ -17,13 +17,15 @@ namespace Domain.Base
 
         //Returns a Specific Model
         [HttpGet(Order = 100)]
-        internal protected virtual ActionResult<T> GetById(Guid Id)
+        internal protected virtual ActionResult<T> GetById(string Id)
         {
             if(!Repository.Exists(Id))
             {
-                return NotFound(Id);
+                return new NotFoundObjectResult(Id);
             }
-            return new OkObjectResult(Repository.GetByID(Id));
+
+            var model = Repository.GetByID(Id);
+            return new OkObjectResult(model);
         }
 
         //Updates a Model
@@ -58,7 +60,7 @@ namespace Domain.Base
 
         //Deletes a Model.
         [HttpDelete(Order = 100)]
-        internal protected virtual IActionResult Delete(Guid Id)
+        internal protected virtual IActionResult Delete(string Id)
         {
             if(!Repository.Exists(Id))
             {

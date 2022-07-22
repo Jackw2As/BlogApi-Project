@@ -52,7 +52,8 @@ public static class SeedData
                     Username = Faker.Internet.UserName(),
                     PostId = post.ID.ToString(),
                     Content = Faker.Lorem.Paragraph(2),
-                    DateCreated = post.DateCreated.Add(DateCreatedOffset)
+                    DateCreated = post.DateCreated.Add(DateCreatedOffset),
+                    ID = Guid.NewGuid().ToString()
                 };
 
                 collection.Add(comment);
@@ -80,6 +81,7 @@ public static class SeedData
                     Content = Faker.Lorem.Paragraph(2),
                     DateCreated = new DateTime(2012, new Random().Next(1, 13), new Random().Next(1, 28)),
                     DateModified = DateTime.UtcNow,
+                    ID = Guid.NewGuid().ToString(),
                 };
 
                 var rand = new Random();
@@ -105,6 +107,7 @@ public static class SeedData
             {
                 Name = Faker.Name.First(),
                 Summary = Faker.Lorem.Sentence(1),
+                ID = Guid.NewGuid().ToString(),
             };
             collection.Add(blog);
             count += 1;

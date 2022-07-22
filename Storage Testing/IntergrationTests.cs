@@ -56,7 +56,7 @@ namespace BlogAPI.Storage.InMemory
             Assert.NotNull(blog);
             var post = new CreatePost(Faker.Lorem.GetFirstWord(), Faker.Lorem.Paragraph(10), blog!);
             var postContent = JsonContent.Create(post);
-            var postResponse = await client.PostAsync("/blog", postContent);
+            var postResponse = await client.PostAsync("/post", postContent);
 
             Assert.True(postResponse.IsSuccessStatusCode);
         }
@@ -68,7 +68,8 @@ namespace BlogAPI.Storage.InMemory
             var client = ApplicationFactory.CreateDefaultClient();
 
             //Act
-            var post = new CreatePost("test", "test content", null!);
+            string GetBlog = "";
+            var post = new CreatePost("test", "test content", GetBlog!);
             var postContent = JsonContent.Create(post);
             var postResponse = await client.PostAsync("/blog", postContent);
 

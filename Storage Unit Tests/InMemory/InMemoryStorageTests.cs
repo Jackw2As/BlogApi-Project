@@ -48,26 +48,26 @@ namespace BlogAPI.Storage.InMemory
         {
             MockDatabaseObject[] data =
             {
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
-                new() { ID = Guid.NewGuid() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
+                new() { ID = Guid.NewGuid().ToString() },
             };
 
             MockObjects = data;
@@ -142,7 +142,7 @@ namespace BlogAPI.Storage.InMemory
         {
             MockInMemoryRepository repository = CreateRepository();
 
-            Assert.ThrowsAny<ArgumentException>(() => repository.GetByID(Guid.NewGuid()));
+            Assert.ThrowsAny<ArgumentException>(() => repository.GetByID(Guid.NewGuid().ToString()));
         }
 
         #endregion
@@ -158,7 +158,7 @@ namespace BlogAPI.Storage.InMemory
             var repository = CreateRepository();
 
             //act
-            var newObject = new MockDatabaseObject() { ID = Guid.NewGuid() };
+            var newObject = new MockDatabaseObject() { ID = Guid.NewGuid().ToString() };
             bool success = repository.Save(newObject);
 
             //Assert
@@ -246,7 +246,7 @@ namespace BlogAPI.Storage.InMemory
             var data = MockObjects;
             var repository = CreateRepository();
 
-            var Item = Guid.NewGuid();
+            var Item = Guid.NewGuid().ToString();
 
             //act;
             var success = repository.Exists(Item);
@@ -283,7 +283,7 @@ namespace BlogAPI.Storage.InMemory
             var data = MockObjects;
             var repository = CreateRepository();
 
-            var Item = new MockDatabaseObject { ID = Guid.NewGuid() };
+            var Item = new MockDatabaseObject { ID = Guid.NewGuid().ToString() };
 
             //act;
             var success = repository.Exists(Item);
@@ -316,7 +316,7 @@ namespace BlogAPI.Storage.InMemory
             var data = MockObjects;
             var repository = CreateRepository();
 
-            var Item = Guid.NewGuid();
+            var Item = Guid.NewGuid().ToString();
 
             //act;
             var success = repository.Exists(obj => obj.ID == Item);

@@ -2,11 +2,19 @@
 {
     public abstract class BaseObject
     {
-        public virtual Guid ID { get; init; }
+        public virtual string ID { get; set; }
 
         public BaseObject()
         {
-            ID = Guid.NewGuid();
+            ID = string.Empty;
+        }
+        public BaseObject(Guid id)
+        {
+            ID = id.ToString();
+        }
+        public BaseObject(string id)
+        {
+            ID = id;
         }
     }
 }
