@@ -24,6 +24,11 @@ namespace Application.Controller
         [HttpPost()]
         public ActionResult<Post> Post([FromBody] CreatePost model)
         {
+            if (!BlogRepository.Exists(model.BlogID))
+            {
+                ModelState.AddModelError(nameof(model.BlogID), "Blog ID is invalid. Couldn't find the blog you are posting on!");
+                return new BadRequestObjectResult(ModelState);
+            }
             var post = new Post()
             {
                 ID = Guid.NewGuid().ToString(),

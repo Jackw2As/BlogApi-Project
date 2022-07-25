@@ -28,6 +28,12 @@ public class CommentController : BaseController<Comment>
     [HttpPost]
     public ActionResult<Comment> Post([FromBody] CreateComment model)
     {
+        if (!PostRepository.Exists(model.PostId))
+        {
+            ModelState.AddModelError(nameof(model.PostId), "Post ID is invalid. Couldn't find the Post you are commenting on!");
+            return new BadRequestObjectResult(ModelState);
+        }
+
         var comment = new Comment()
         {
             ID = Guid.NewGuid().ToString(),
