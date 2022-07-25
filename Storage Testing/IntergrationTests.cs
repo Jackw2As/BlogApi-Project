@@ -78,6 +78,29 @@ namespace BlogAPI.Storage.InMemory
         }
 
         [Fact]
+        public async void ShouldFindABlogThenFindAllPostsForSaidBlog()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Get Blog
+            var blogs = await client.GetFromJsonAsync<List<GetBlog>>("blog/list");
+            
+            Assert.NotNull(blogs);
+            Assert.NotEmpty(blogs);
+
+            var blog = blogs.First();
+
+            //Get Posts
+            var posts = await client.GetFromJsonAsync<List<GetBlog>>($"blog/list?ID{blog.ID}");
+
+            Assert.NotNull(posts);
+            Assert.NotEmpty(posts);
+        }
+
+
+
+        [Fact]
         public async void ShouldDeleteBlogAndPostsAndComments()
         {
             //Arrange
