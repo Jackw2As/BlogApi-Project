@@ -1,5 +1,6 @@
 ﻿using BlogAPI.Application.ApiModels;
 using BlogAPI.Storage.DatabaseModels;
+using Domain.ActionResults;
 using Domain.Base;
 using Domain.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -95,6 +96,50 @@ namespace Application.Controller
             }
 
             return new ObjectResult(GetPosts);
+        }
+
+        [HttpDelete]
+        public ActionResult Delete([FromQuery] Guid id)
+        {
+            if(!Repository.Exists(id.ToString()))
+            {
+                ModelState.AddModelError(nameof(id), "id is invalid");
+                return new BadRequestObjectResult(ModelState);
+            }
+
+            var post = Repository.GetByID(id.ToString());
+
+            //Delete Comments
+            foreach (var comment in post.CommentIds)
+            {
+                var result = CommentRepository.Delete(comment);
+                if(!result)
+                {
+                    //Save any changes made(aka removed comments deleted)
+                    Repository.Modify(post);
+                    return new ServerError($"Unable to delete comment id = {comment}. Try deleting comment before deleting post!");
+                }
+                post.CommentIds.Remove(comment);
+            }
+
+            //Delete Post
+            var blogs = BlogRepository.GetByQuery(blog => blog.PostIds.Contains(post.ID));
+            foreach (var blog in blogs)
+            {
+                blog.PostIds.Remove(post.ID);
+                BlogRepository.Modify(blog);
+            }
+
+            var success = Repository.Delete(id.ToString());
+
+            if(success)
+            {
+                return Ok();
+            }
+
+            //Save any changes made(aka removed comments deleted)
+            Repository.Modify(post);
+            return new ServerError($"Unable to delete id = {id}.");
         }
     }
 }
