@@ -180,11 +180,104 @@ namespace BlogAPI.Storage.InMemory
             //Assert
             Assert.True(response.IsSuccessStatusCode);
 
+            var blogList = await client.GetFromJsonAsync<List<GetBlog>>($"blog/list");
             var postList = await client.GetFromJsonAsync<List<GetPost>>($"post/list?ID={blog.ID}");
-            var commentList = await client.GetFromJsonAsync<List<GetComment>>($"post/list?ID={blog.ID}");
+            var commentList = await client.GetFromJsonAsync<List<GetComment>>($"post/list?ID={post.ID}");
 
+            Assert.DoesNotContain(blog, blogList);
             Assert.Empty(postList);
             Assert.Empty(commentList);
+        }
+
+
+        [Fact]
+        public async void ShouldDeletePostAndComments()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            var createBlog = new CreateBlog("Blog Test");
+            var postBlogContent = JsonContent.Create(createBlog);
+            var blogResponse = await client.PostAsync("/blog", postBlogContent);
+            var blogLocation = blogResponse.Headers.Location;
+            var blog = await client.GetFromJsonAsync<GetBlog>(blogLocation);
+
+            Assert.NotNull(blog);
+
+            var createPost = new CreatePost("Post Test", "Post Content.", blog);
+            var postPostContent = JsonContent.Create(createPost);
+            var postResponse = await client.PostAsync("/post", postPostContent);
+            var postLocation = postResponse.Headers.Location;
+            var post = await client.GetFromJsonAsync<GetPost>(postLocation);
+
+            Assert.NotNull(post);
+
+            var createComment = new CreateComment("Test Username", "Test Comment", post);
+            var commentCommentContent = JsonContent.Create(createComment);
+            var commentResponse = await client.PostAsync("/comment", commentCommentContent);
+            var commentLocation = commentResponse.Headers.Location;
+            var comment = await client.GetFromJsonAsync<GetComment>(commentLocation);
+
+            Assert.NotNull(comment);
+
+            //Act
+            var response = await client.DeleteAsync($"/post?ID={blog.ID}");
+
+            //Assert
+            Assert.True(response.IsSuccessStatusCode);
+
+            var blogList = await client.GetFromJsonAsync<List<GetBlog>>($"blog/list");
+            var postList = await client.GetFromJsonAsync<List<GetPost>>($"post/list?ID={blog.ID}");
+            var commentList = await client.GetFromJsonAsync<List<GetComment>>($"post/list?ID={post.ID}");
+
+            Assert.Contains(blog, blogList);
+            Assert.DoesNotContain(post, postList);
+            Assert.Empty(commentList);
+        }
+
+        [Fact]
+        public async void ShouldDeleteComment()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            var createBlog = new CreateBlog("Blog Test");
+            var postBlogContent = JsonContent.Create(createBlog);
+            var blogResponse = await client.PostAsync("/blog", postBlogContent);
+            var blogLocation = blogResponse.Headers.Location;
+            var blog = await client.GetFromJsonAsync<GetBlog>(blogLocation);
+
+            Assert.NotNull(blog);
+
+            var createPost = new CreatePost("Post Test", "Post Content.", blog);
+            var postPostContent = JsonContent.Create(createPost);
+            var postResponse = await client.PostAsync("/post", postPostContent);
+            var postLocation = postResponse.Headers.Location;
+            var post = await client.GetFromJsonAsync<GetPost>(postLocation);
+
+            Assert.NotNull(post);
+
+            var createComment = new CreateComment("Test Username", "Test Comment", post);
+            var commentCommentContent = JsonContent.Create(createComment);
+            var commentResponse = await client.PostAsync("/comment", commentCommentContent);
+            var commentLocation = commentResponse.Headers.Location;
+            var comment = await client.GetFromJsonAsync<GetComment>(commentLocation);
+
+            Assert.NotNull(comment);
+
+            //Act
+            var response = await client.DeleteAsync($"/comment?id={comment.ID}");
+
+            //Assert
+            Assert.True(response.IsSuccessStatusCode);
+
+            var blogList = await client.GetFromJsonAsync<List<GetBlog>>($"blog/list");
+            var postList = await client.GetFromJsonAsync<List<GetPost>>($"post/list?ID={blog.ID}");
+            var commentList = await client.GetFromJsonAsync<List<GetComment>>($"post/list?ID={post.ID}");
+
+            Assert.Contains(blog, blogList);
+            Assert.Contains(post, postList);
+            Assert.DoesNotContain(comment, commentList);
         }
     }
 }
