@@ -16,5 +16,15 @@
         {
             ID = id;
         }
+
+        public override bool Equals(object? obj)
+        {
+            var item = obj as BaseObject;
+
+            if (item == null) return false;
+
+            if (item.ID == ID) return true;
+            return false;
+        }
     }
 }
