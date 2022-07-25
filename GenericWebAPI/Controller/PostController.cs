@@ -4,6 +4,7 @@ using Domain.ActionResults;
 using Domain.Base;
 using Domain.Interface;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace Application.Controller
 {
@@ -101,45 +102,47 @@ namespace Application.Controller
         [HttpDelete]
         public ActionResult Delete([FromQuery] Guid id)
         {
-            if(!Repository.Exists(id.ToString()))
+            if (!Repository.Exists(id.ToString()))
             {
                 ModelState.AddModelError(nameof(id), "id is invalid");
                 return new BadRequestObjectResult(ModelState);
             }
 
             var post = Repository.GetByID(id.ToString());
-
-            //Delete Comments
-            foreach (var comment in post.CommentIds)
+            foreach (var (comment, result) in
+            from comment in post.CommentIds
+            let result = CommentRepository.Delete(comment)
+            select (comment, result))
             {
-                var result = CommentRepository.Delete(comment);
-                if(!result)
+                if (!result)
                 {
                     //Save any changes made(aka removed comments deleted)
                     Repository.Modify(post);
                     return new ServerError($"Unable to delete comment id = {comment}. Try deleting comment before deleting post!");
                 }
+
                 post.CommentIds.Remove(comment);
             }
 
             //Delete Post
+            RemoveThisPostFromBlogs(post);
+            
+            var success = Repository.Delete(id.ToString());
+            if (success) return Ok();
+
+            //Save any changes made(aka removed comments deleted)
+            Repository.Modify(post);
+            return new ServerError($"Unable to delete id = {id}.");
+        }
+
+        private void RemoveThisPostFromBlogs(Post post)
+        {
             var blogs = BlogRepository.GetByQuery(blog => blog.PostIds.Contains(post.ID));
             foreach (var blog in blogs)
             {
                 blog.PostIds.Remove(post.ID);
                 BlogRepository.Modify(blog);
             }
-
-            var success = Repository.Delete(id.ToString());
-
-            if(success)
-            {
-                return Ok();
-            }
-
-            //Save any changes made(aka removed comments deleted)
-            Repository.Modify(post);
-            return new ServerError($"Unable to delete id = {id}.");
         }
     }
 }

@@ -5,6 +5,7 @@ using Domain.Base;
 using Domain.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace BlogAPI.Application.Controller;
 
@@ -71,25 +72,29 @@ public class BlogController : BaseController<Blog>
         }
 
         var blog = Repository.GetByID(id.ToString());
-
+        
         //Delete Posts
-        foreach (var postId in blog.PostIds)
+        foreach (var (postId, post) in
+        from postId in blog.PostIds
+        let post = PostRepository.GetByID(postId.ToString())
+        select (postId, post))
         {
-            var post = PostRepository.GetByID(postId.ToString());
-
             //Delete Comments
-            foreach (var comment in PostRepository.GetByID(postId).CommentIds)
+            foreach (var (comment, result1) in
+            from comment in PostRepository.GetByID(postId).CommentIds
+            let result1 = CommentRepository.Delete(comment)
+            select (comment, result1))
             {
-                var result1 = CommentRepository.Delete(comment);
                 if (!result1)
                 {
                     //Save any changes made(aka removed comments deleted)
                     PostRepository.Modify(post);
                     return new ServerError($"Unable to delete comment id = {comment}. Try deleting comment before deleting blog!");
                 }
+
                 post.CommentIds.Remove(comment);
             }
-            
+
             var result2 = PostRepository.Delete(postId);
             if (!result2)
             {
@@ -97,16 +102,13 @@ public class BlogController : BaseController<Blog>
                 Repository.Modify(blog);
                 return new ServerError($"Unable to delete post id = {postId}. Try deleting comment before deleting blog");
             }
+
             blog.PostIds.Clear();
         }
 
         //Delete Blog
         var success = Repository.Delete(id.ToString());
-
-        if (success)
-        {
-            return Ok();
-        }
+        if (success) return Ok();
 
         //Save any changes made(aka removed comments deleted)
         Repository.Modify(blog);
