@@ -1,5 +1,6 @@
 ﻿using BlogAPI.Application.ApiModels;
 using BlogAPI.Storage.DatabaseModels;
+using Domain.ActionResults;
 using Domain.Base;
 using Domain.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -73,7 +74,7 @@ public class CommentController : BaseController<Comment>
     }
 
     [HttpGet("List")]
-    public ActionResult<List<GetComment>> GetAll([FromQuery(Name = "Post ID")] Guid PostId)
+    public ActionResult<List<GetComment>> GetAll([FromQuery] Guid PostId)
     {
         var post = PostRepository.GetByID(PostId.ToString());
         if (post == null)
@@ -95,5 +96,35 @@ public class CommentController : BaseController<Comment>
         }
 
         return new ObjectResult(GetComments);
+    }
+
+    [HttpDelete]
+    public ActionResult Delete([FromQuery] Guid id)
+    {
+        if (!Repository.Exists(id.ToString()))
+        {
+            ModelState.AddModelError(nameof(id), "id is invalid");
+            return new BadRequestObjectResult(ModelState);
+        }
+
+        var posts = PostRepository.GetByQuery(post => post.CommentIds.Contains(id.ToString()));
+        if(posts.Count() > 0)
+        {
+            foreach (var post in posts)
+            {
+                post.CommentIds.Remove(id.ToString());
+                PostRepository.Modify(post);
+            }
+        }
+
+        var success = Repository.Delete(id.ToString());
+
+        if (success)
+        {
+            return Ok();
+        }
+
+        //Save any changes made(aka removed comments deleted)
+        return new ServerError($"Unable to delete id = {id}.");
     }
 }
