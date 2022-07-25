@@ -163,12 +163,10 @@ namespace BlogAPI.Storage.InMemory
             Assert.True(response.IsSuccessStatusCode);
 
             var blogList = await client.GetFromJsonAsync<List<GetBlog>>($"blog/list");
-            var postList = await client.GetFromJsonAsync<List<GetPost>>($"post/list?BlogId={blog.ID}");
-            var commentList = await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={post.ID}");
+            await Assert.ThrowsAsync<HttpRequestException>(async () => await client.GetFromJsonAsync<List<GetPost>>($"post/list?BlogId={blog.ID}"));
+            await Assert.ThrowsAsync<HttpRequestException>(async() => await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={post.ID}"));
 
             Assert.DoesNotContain(blog, blogList);
-            Assert.Empty(postList);
-            Assert.Empty(commentList);
         }
 
         [Fact]
@@ -209,11 +207,10 @@ namespace BlogAPI.Storage.InMemory
 
             var blogList = await client.GetFromJsonAsync<List<GetBlog>>($"blog/list");
             var postList = await client.GetFromJsonAsync<List<GetPost>>($"post/list?BlogId={blog.ID}");
-            var commentList = await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={post.ID}");
+            await Assert.ThrowsAsync<HttpRequestException>(async()  => await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={post.ID}"));
 
             Assert.Contains(blog, blogList);
             Assert.DoesNotContain(post, postList);
-            Assert.Empty(commentList);
         }
 
         [Fact]
