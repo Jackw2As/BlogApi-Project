@@ -1,6 +1,5 @@
 ﻿using BlogAPI.Storage.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -47,19 +46,6 @@ public class InMemoryDBContext : DbContext
         });
 
         base.OnModelCreating(modelBuilder);
-    }
-}
-
-
-public class IEnumerableGuidToString : ValueConverter<List<string>, string>
-{
-    public IEnumerableGuidToString() : base (
-
-        list => String.Join(",,,", list.Select(p => p.ToString().ToArray())),
-        guidStrings => guidStrings.Split(",,,", StringSplitOptions.None).ToList()
-    )
-    {
-
     }
 }
 
