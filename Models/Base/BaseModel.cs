@@ -24,6 +24,7 @@
             if (item == null) return false;
 
             if (item.ID == ID) return true;
+
             return false;
         }
     }
