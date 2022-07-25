@@ -62,22 +62,6 @@ namespace BlogAPI.Storage.InMemory
         }
 
         [Fact]
-        public async void ShouldNotCreatePost()
-        {
-            //Arrange
-            var client = ApplicationFactory.CreateDefaultClient();
-
-            //Act
-            string GetBlog = "";
-            var post = new CreatePost("test", "test content", GetBlog!);
-            var postContent = JsonContent.Create(post);
-            var postResponse = await client.PostAsync("/blog", postContent);
-
-            //Assert
-            Assert.False(postResponse.IsSuccessStatusCode);
-        }
-
-        [Fact]
         public async void ShouldFindABlogThenFindAllPostsForSaidBlog()
         {
             //Arrange
@@ -142,8 +126,6 @@ namespace BlogAPI.Storage.InMemory
             Assert.Equal(createComment.PostId, comment.Post.ID);
         }
 
-
-
         [Fact]
         public async void ShouldDeleteBlogAndPostsAndComments()
         {
@@ -188,7 +170,6 @@ namespace BlogAPI.Storage.InMemory
             Assert.Empty(postList);
             Assert.Empty(commentList);
         }
-
 
         [Fact]
         public async void ShouldDeletePostAndComments()
@@ -278,6 +259,38 @@ namespace BlogAPI.Storage.InMemory
             Assert.Contains(blog, blogList);
             Assert.Contains(post, postList);
             Assert.DoesNotContain(comment, commentList);
+        }
+
+        [Fact]
+        public async void ShouldNotCreatePost()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            string invalidId = "";
+            var post = new CreatePost("test", "test content", invalidId!);
+            var postContent = JsonContent.Create(post);
+            var postResponse = await client.PostAsync("/post", postContent);
+
+            //Assert
+            Assert.False(postResponse.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        public async void ShouldNotCreateComment()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            string invalidId = "";
+            var post = new CreateComment("test", "test content", invalidId!);
+            var postContent = JsonContent.Create(post);
+            var postResponse = await client.PostAsync("/comment", postContent);
+
+            //Assert
+            Assert.False(postResponse.IsSuccessStatusCode);
         }
     }
 }
