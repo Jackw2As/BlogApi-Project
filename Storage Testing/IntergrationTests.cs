@@ -202,7 +202,7 @@ namespace BlogAPI.Storage.InMemory
             Assert.NotNull(comment);
 
             //Act
-            var response = await client.DeleteAsync($"/post?ID={blog.ID}");
+            var response = await client.DeleteAsync($"/post?id={post.ID}");
 
             //Assert
             Assert.True(response.IsSuccessStatusCode);
