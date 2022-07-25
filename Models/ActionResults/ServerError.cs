@@ -9,14 +9,14 @@ using System.Web.Http;
 
 namespace Domain.ActionResults
 {
-    public class ServerError : IActionResult
+    public class ServerError : ActionResult
     {
         private string message;
         public ServerError(string message)
         {
             this.message = message;
         }
-        public Task ExecuteResultAsync(ActionContext context)
+        public override Task ExecuteResultAsync(ActionContext context)
         {
             var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             response.Content = new StringContent(message);
