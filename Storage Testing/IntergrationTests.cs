@@ -92,10 +92,54 @@ namespace BlogAPI.Storage.InMemory
             var blog = blogs.First();
 
             //Get Posts
-            var posts = await client.GetFromJsonAsync<List<GetBlog>>($"blog/list?ID{blog.ID}");
+            var posts = await client.GetFromJsonAsync<List<GetPost>>($"post/list?BlogId={blog.ID}");
 
             Assert.NotNull(posts);
             Assert.NotEmpty(posts);
+        }
+
+        [Fact]
+        public async void ShouldPostACommentOnAnExistingBlog()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Get Blog
+            var blogs = await client.GetFromJsonAsync<List<GetBlog>>("blog/list");
+
+            Assert.NotNull(blogs);
+            Assert.NotEmpty(blogs);
+
+            var blog = blogs.First();
+
+            //Get Posts
+            var posts = await client.GetFromJsonAsync<List<GetPost>>($"post/list?BlogId={blog.ID}");
+
+            Assert.NotNull(posts);
+            Assert.NotEmpty(posts);
+
+            var post = posts.First();
+
+            //Act
+
+            //Create Comment
+            var createComment = new CreateComment(Faker.Name.First(), Faker.Lorem.Sentence(), post);
+            var commentContent = JsonContent.Create(createComment);
+            var commentResponse = await client.PostAsync("/comment", commentContent);
+
+            //Assert
+            //is Created
+            Assert.True(commentResponse.IsSuccessStatusCode);
+            
+            var commentLocation = commentResponse.Headers.Location;
+            Assert.NotNull(commentLocation);
+            
+            //returns expected values
+            var comment = await client.GetFromJsonAsync<GetComment>(commentLocation);
+            Assert.NotNull(comment);
+            Assert.Equal(createComment.Username, comment.Username);
+            Assert.Equal(createComment.Content, comment.Content);
+            Assert.Equal(createComment.PostId, comment.Post.ID);
         }
 
 
