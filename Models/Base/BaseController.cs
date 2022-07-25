@@ -60,7 +60,7 @@ namespace Domain.Base
 
         //Deletes a Model.
         [HttpDelete(Order = 100)]
-        internal protected virtual IActionResult Delete(string Id)
+        internal protected virtual ActionResult Delete(string Id)
         {
             if(!Repository.Exists(Id))
             {
