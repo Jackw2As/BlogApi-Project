@@ -1,6 +1,4 @@
 ﻿using BlogAPI.Application.ApiModels;
-using BlogAPI.Storage.DatabaseModels;
-using Domain.Base;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
@@ -420,48 +418,6 @@ namespace BlogAPI.Storage.InMemory
 
             Assert.Equal(modifyBlog.Name, result.Name);
             Assert.Equal(modifyBlog.Summary, result.Summary);
-        }
-    }
-
-    public class ModifyBlog : DataObject
-    {
-        public ModifyBlog(GetBlog getBlog)
-        {
-            ID = getBlog.ID;
-            Name = getBlog.Name;
-            Summary = getBlog.Summary;
-        }
-
-        public string Name { get; set; }
-        public string? Summary { get; set; }
-    }
-
-    public class ModifyPost : BaseObject
-    {
-        public ModifyPost(GetPost getPost)
-        {
-            ID = getPost.ID;
-            Title = getPost.Title;
-            Summary = getPost.Summary;
-            Content = getPost.Content;
-            DateModfied = DateTime.UtcNow;
-        }
-
-        public string? Summary { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
-        public DateTime DateModfied { get; }
-    }
-
-    public class ModifyComment : BaseObject
-    {
-        public string Content { get; set; }
-        public DateTime DateModfied { get; }
-        public ModifyComment(GetComment getComment)
-        {
-            ID = getComment.ID;
-            Content = getComment.Content;
-            DateModfied = DateTime.UtcNow;
         }
     }
 }
