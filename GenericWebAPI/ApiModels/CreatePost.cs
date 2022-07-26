@@ -8,13 +8,13 @@ namespace BlogAPI.Application.ApiModels
         public string Title { get; set; }
         public string Content { get; set; }
         public string? Summary { get; set; }
-
         public string BlogID { get; set; }
 
         public CreatePost()
         {
             Title = String.Empty;
             Content = String.Empty;
+            BlogID = String.Empty;
         }
         public CreatePost(string title, string content, string blogID, string? summary = null)
         {
@@ -30,6 +30,5 @@ namespace BlogAPI.Application.ApiModels
             Summary = summary;
             BlogID = blog.ID;
         }
-        
     }
 }

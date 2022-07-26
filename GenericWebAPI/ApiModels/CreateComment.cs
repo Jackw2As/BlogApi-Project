@@ -9,6 +9,12 @@ namespace BlogAPI.Application.ApiModels
         public string Content { get; set; }
         public string PostId { get; set; }
 
+        public CreateComment()
+        {
+            Username = String.Empty;
+            Content = String.Empty;
+            PostId = String.Empty;
+        }
         public CreateComment(string username, string content, string postID)
         {
             Username = username;
@@ -20,11 +26,6 @@ namespace BlogAPI.Application.ApiModels
             Username = username;
             Content = content;
             PostId = post.ID;
-        }
-
-        public CreateComment()
-        {
-            
-        }
+        } 
     }
 }

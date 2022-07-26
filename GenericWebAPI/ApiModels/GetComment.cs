@@ -18,9 +18,9 @@ namespace BlogAPI.Application.ApiModels
             Post = new GetPost();
             DateCreated = DateTime.Now;
         }
-
         public GetComment(Comment comment, GetPost post)
         {
+            ID = comment.ID;
             Username = comment.Username;
             Content = comment.Content;
             DateCreated = comment.DateCreated;
@@ -30,8 +30,6 @@ namespace BlogAPI.Application.ApiModels
                 throw new ArgumentException("Post is not related to Comment! Post has to be comment Parent.");
             }
             Post = post;
-
-            ID = comment.ID;
         }
     }
 }

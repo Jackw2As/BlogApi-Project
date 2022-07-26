@@ -14,7 +14,6 @@ namespace BlogAPI.Application.ApiModels
             Name = String.Empty;
             PostIds = new List<string>();
         }
-
         public GetBlog(Blog blog)
         {
             Name = blog.Name;

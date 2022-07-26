@@ -4,6 +4,16 @@ namespace BlogAPI.Application.ApiModels
 {
     public class ModifyBlog : DataObject
     {
+        public string Name { get; set; }
+        public string? Summary { get; set; }
+        public List<string> PostIds { get; set; }
+
+        public ModifyBlog()
+        {
+            Name = String.Empty;
+            Summary = null;
+            PostIds = new();
+        }
         public ModifyBlog(GetBlog getBlog)
         {
             ID = getBlog.ID;
@@ -11,15 +21,6 @@ namespace BlogAPI.Application.ApiModels
             Summary = getBlog.Summary;
             PostIds = getBlog.PostIds;
         }
-        public ModifyBlog()
-        {
-            Name = String.Empty;
-            Summary = null;
-            PostIds = new();
-        }
-
-        public string Name { get; set; }
-        public string? Summary { get; set; }
-        public List<string> PostIds { get; set; }
+        
     }
 }

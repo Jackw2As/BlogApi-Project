@@ -15,7 +15,8 @@ namespace BlogAPI.Application.ApiModels
         {
             Title = String.Empty;
             Content = String.Empty;
-            Blog = new GetBlog();
+            Blog = new();
+            CommentIds = new();
         }
 
         public GetPost(Post post, GetBlog blog)
