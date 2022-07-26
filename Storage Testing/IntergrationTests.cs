@@ -183,8 +183,8 @@ namespace BlogAPI.Storage.InMemory
             Assert.NotNull(blog);
 
             var createPost = new CreatePost("Post Test", "Post Content.", blog);
-            var postPostContent = JsonContent.Create(createPost);
-            var postResponse = await client.PostAsync("/post", postPostContent);
+            var postContent = JsonContent.Create(createPost);
+            var postResponse = await client.PostAsync("/post", postContent);
             var postLocation = postResponse.Headers.Location;
             var post = await client.GetFromJsonAsync<GetPost>(postLocation);
 
@@ -406,7 +406,7 @@ namespace BlogAPI.Storage.InMemory
             modifyBlog.Summary = "New Summary!";
 
             var blogContent = JsonContent.Create(ModifyComment);
-            var PostResponse = await client.PostAsync("/blog/update", blogContent);
+            var PostResponse = await client.PostAsync("blog/update", blogContent);
 
             //Assert
             Assert.True(PostResponse.IsSuccessStatusCode);
