@@ -34,16 +34,7 @@ public class CommentController : BaseController<Comment>
             ModelState.AddModelError(nameof(model.PostId), "Post ID is invalid. Couldn't find the Post you are commenting on!");
             return new BadRequestObjectResult(ModelState);
         }
-
-        var comment = new Comment()
-        {
-            ID = Guid.NewGuid().ToString(),
-            Content = model.Content,
-            DateCreated = DateTime.UtcNow,
-            DateModfied = DateTime.UtcNow,
-            PostId = model.PostId.ToString(),
-            Username = model.Username,
-        };
+        Comment comment = createComment(model);
 
         return base.Post(comment);
     }
@@ -52,27 +43,20 @@ public class CommentController : BaseController<Comment>
     public ActionResult<GetComment> GetById([FromQuery]Guid id)
     {
         var result = base.GetById(id.ToString());
-        var item = (result.Result as ObjectResult).Value as Comment;
-        if (item == null)
+        var comment = (result.Result as ObjectResult).Value as Comment;
+        if (comment == null)
         {
-            return new NotFoundObjectResult(item);
+            return new NotFoundObjectResult(comment);
         }
 
-        var post = PostRepository.GetByID(item.PostId);
-        var blog = BlogRepository.GetByID(post.BlogId);
-
-        var getblog = new GetBlog(blog);
-        var getPost = new GetPost(post, getblog);
-
-        return new(new GetComment()
+        var post = PostRepository.GetByID(comment.PostId);
+        if (post == null)
         {
-            ID = item.ID,
-            Content = item.Content,
-            Username = item.Username,
-            Post = getPost,
-            DateCreated= item.DateCreated,
-            DateModified = item.DateModfied
-        });
+            return new NotFoundObjectResult(post);
+        }
+
+        var getPost = createPost(post);
+        return new(new GetComment(comment, getPost));
     }
 
     [HttpGet("List")]
@@ -83,18 +67,13 @@ public class CommentController : BaseController<Comment>
         {
             return NotFound(PostId);
         }
-        var blog = BlogRepository.GetByID(post.BlogId);
-        var getblog = new GetBlog(blog);
-        var getPost = new GetPost(post, getblog);
 
+        GetPost getPost = createPost(post);
         var comments = Repository.GetByQuery(comment => comment.PostId == PostId.ToString());
-
-        
         var GetComments = new List<GetComment>();
         foreach (var comment in comments)
         {
-            GetComments.Add(
-            new GetComment(comment, getPost));
+            GetComments.Add(new GetComment(comment, getPost));
         }
 
         return new ObjectResult(GetComments);
@@ -103,15 +82,7 @@ public class CommentController : BaseController<Comment>
     [HttpPost("Update")]
     public ActionResult<Comment> Modify(ModifyComment model)
     {
-        var comment = new Comment()
-        {
-            ID = model.ID,
-            Content = model.Content,
-            DateCreated = model.DateCreated,
-            DateModfied = DateTime.UtcNow,
-            PostId = model.PostId,
-            Username = model.Username,
-        };
+        Comment comment = createComment(model);
         return base.Post(comment);
     }
 
@@ -124,15 +95,7 @@ public class CommentController : BaseController<Comment>
             return new BadRequestObjectResult(ModelState);
         }
 
-        var posts = PostRepository.GetByQuery(post => post.CommentIds.Contains(id.ToString()));
-        if(posts.Count() > 0)
-        {
-            foreach (var post in posts)
-            {
-                post.CommentIds.Remove(id.ToString());
-                PostRepository.Modify(post);
-            }
-        }
+        RemovePostFromComment(id);
 
         var success = Repository.Delete(id.ToString());
 
@@ -144,4 +107,52 @@ public class CommentController : BaseController<Comment>
         //Save any changes made(aka removed comments deleted)
         return new ServerError($"Unable to delete id = {id}.");
     }
+
+    private void RemovePostFromComment(Guid id)
+    {
+        var posts = PostRepository.GetByQuery(post => post.CommentIds.Contains(id.ToString()));
+        if (posts.Any())
+        {
+            foreach (var post in posts)
+            {
+                post.CommentIds.Remove(id.ToString());
+                PostRepository.Modify(post);
+            }
+        }
+    }
+
+    #region Helper
+    private static Comment createComment(CreateComment model)
+    {
+        return new Comment()
+        {
+            ID = Guid.NewGuid().ToString(),
+            Content = model.Content,
+            DateCreated = DateTime.UtcNow,
+            DateModfied = DateTime.UtcNow,
+            PostId = model.PostId.ToString(),
+            Username = model.Username,
+        };
+    }
+    private static Comment createComment(ModifyComment model)
+    {
+        return new Comment()
+        {
+            ID = model.ID,
+            Content = model.Content,
+            DateCreated = model.DateCreated,
+            DateModfied = DateTime.UtcNow,
+            PostId = model.PostId,
+            Username = model.Username,
+        };
+    }
+
+    private GetPost createPost(Post post)
+    {
+        var blog = BlogRepository.GetByID(post.BlogId);
+        var getblog = new GetBlog(blog);
+        var getPost = new GetPost(post, getblog);
+        return getPost;
+    }
+    #endregion
 }
