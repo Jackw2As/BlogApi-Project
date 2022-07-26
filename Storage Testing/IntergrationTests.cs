@@ -1,5 +1,6 @@
 ﻿using BlogAPI.Application.ApiModels;
 using BlogAPI.Storage.DatabaseModels;
+using Domain.Base;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
@@ -288,6 +289,179 @@ namespace BlogAPI.Storage.InMemory
 
             //Assert
             Assert.False(postResponse.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        public async void ModifyComment()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Get Blog
+            var blogs = await client.GetFromJsonAsync<List<GetBlog>>("blog/list");
+
+            Assert.NotNull(blogs);
+            Assert.NotEmpty(blogs);
+
+            var blog = blogs.First();
+
+            //Get Posts
+            var posts = await client.GetFromJsonAsync<List<GetPost>>($"post/list?BlogId={blog.ID}");
+
+            Assert.NotNull(posts);
+            Assert.NotEmpty(posts);
+
+            var post = posts.First();
+
+            //Act
+
+            //Get Comment
+            var comments = await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={blog.ID}");
+
+            Assert.NotNull(posts);
+            Assert.NotEmpty(posts);
+
+            var getComment = comments.First();
+            Assert.NotNull(getComment);
+            //Modify Commment
+            var modifyComment = new ModifyComment(getComment);
+
+            modifyComment.Content = "new content";
+
+            var commentContent = JsonContent.Create(ModifyComment);
+            var commentResponse = await client.PostAsync("/comment/update", commentContent);
+
+
+            Assert.True(commentResponse.IsSuccessStatusCode);
+            var result = await client.GetFromJsonAsync<GetComment>($"comment?Id={blog.ID}");
+            Assert.Equal(getComment.ID, result.ID);
+            Assert.Equal(getComment.Username, result.Username);
+            Assert.Equal(getComment.Post, result.Post);
+            Assert.NotEqual(getComment.Content, result.Content);
+            Assert.Equal(modifyComment.Content, result.Content);
+        }
+        [Fact]
+        public async void ModifyPost()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Get Blog
+            var blogs = await client.GetFromJsonAsync<List<GetBlog>>("blog/list");
+
+            Assert.NotNull(blogs);
+            Assert.NotEmpty(blogs);
+
+            var blog = blogs.First();
+
+            //Act
+            //Get Posts
+            var posts = await client.GetFromJsonAsync<List<GetPost>>($"post/list?BlogId={blog.ID}");
+
+            Assert.NotNull(posts);
+            Assert.NotEmpty(posts);
+
+            var getPost = posts.First();
+            Assert.NotNull(getPost);
+            //Modify Post
+            var modifyPost = new ModifyPost(getPost);
+
+            modifyPost.Title = "New Title";
+            modifyPost.Summary = "new summary for content";
+            modifyPost.Content = "new content isn't it great?";
+
+            var postContent = JsonContent.Create(ModifyComment);
+            var postResponse = await client.PostAsync("/post/update", postContent);
+
+            //Assert
+            Assert.True(postResponse.IsSuccessStatusCode);
+            var result = await client.GetFromJsonAsync<GetPost>($"post?Id={modifyPost.ID}");
+            Assert.Equal(getPost.ID, result.ID);
+            Assert.Equal(getPost.Blog, result.Blog);
+
+            Assert.NotEqual(getPost.Summary, result.Summary);
+            Assert.NotEqual(getPost.Title, result.Title);
+            Assert.NotEqual(getPost.Content, result.Content);
+
+            Assert.Equal(modifyPost.Summary, result.Summary);
+            Assert.Equal(modifyPost.Title, result.Title);
+            Assert.Equal(modifyPost.Content, result.Content);
+        }
+        [Fact]
+        public async void ModifyBlog()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Get Blog
+            var blogs = await client.GetFromJsonAsync<List<GetBlog>>("blog/list");
+
+            Assert.NotNull(blogs);
+            Assert.NotEmpty(blogs);
+
+            var getBlog = blogs.First();
+
+            //Modify Blog
+            var modifyBlog = new ModifyBlog(getBlog);
+
+            modifyBlog.Name = "New Name";
+            modifyBlog.Summary = "New Summary!";
+
+            var blogContent = JsonContent.Create(ModifyComment);
+            var PostResponse = await client.PostAsync("/blog/update", blogContent);
+
+            //Assert
+            Assert.True(PostResponse.IsSuccessStatusCode);
+            var result = await client.GetFromJsonAsync<GetBlog>($"comment?Id={modifyBlog.ID}");
+            Assert.Equal(getBlog.ID, result.ID);
+
+            Assert.NotEqual(getBlog.Name, result.Name);
+            Assert.NotEqual(getBlog.Summary, result.Summary);
+
+            Assert.Equal(modifyBlog.Name, result.Name);
+            Assert.Equal(modifyBlog.Summary, result.Summary);
+        }
+    }
+
+    public class ModifyBlog : DataObject
+    {
+        public ModifyBlog(GetBlog getBlog)
+        {
+            ID = getBlog.ID;
+            Name = getBlog.Name;
+            Summary = getBlog.Summary;
+        }
+
+        public string Name { get; set; }
+        public string? Summary { get; set; }
+    }
+
+    public class ModifyPost : BaseObject
+    {
+        public ModifyPost(GetPost getPost)
+        {
+            ID = getPost.ID;
+            Title = getPost.Title;
+            Summary = getPost.Summary;
+            Content = getPost.Content;
+            DateModfied = DateTime.UtcNow;
+        }
+
+        public string? Summary { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public DateTime DateModfied { get; }
+    }
+
+    public class ModifyComment : BaseObject
+    {
+        public string Content { get; set; }
+        public DateTime DateModfied { get; }
+        public ModifyComment(GetComment getComment)
+        {
+            ID = getComment.ID;
+            Content = getComment.Content;
+            DateModfied = DateTime.UtcNow;
         }
     }
 }
