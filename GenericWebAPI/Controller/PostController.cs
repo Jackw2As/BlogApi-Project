@@ -64,7 +64,9 @@ namespace Application.Controller
                 ID = item.ID,
                 Title = item.Title,
                 Summary = item.Summary,
-                Blog = getblog
+                Blog = getblog,
+                CommentIds = item.CommentIds,
+                Content = item.Content
             });
         }
 
@@ -92,11 +94,29 @@ namespace Application.Controller
                     Content = post.Content,
                     ID = post.ID,
                     Summary = post.Summary,
-                    Title = post.Title
+                    Title = post.Title,
+                    CommentIds = post.CommentIds
                 });
             }
 
             return new ObjectResult(GetPosts);
+        }
+
+        [HttpPost("Update")]
+        public ActionResult<Post> Modify(ModifyPost model)
+        {
+            var blog = new Post()
+            {
+                ID = model.ID,
+                Content = model.Content,
+                DateCreated = model.DateCreated,
+                DateModified = DateTime.UtcNow,
+                BlogId = model.BlogID,
+                CommentIds = model.CommentIds,
+                Summary = model.Summary ?? "My Fantastic New Blog!!!",
+                Title = model.Title
+            };
+            return base.Post(blog);
         }
 
         [HttpDelete]

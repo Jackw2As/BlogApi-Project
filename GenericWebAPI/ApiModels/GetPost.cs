@@ -9,7 +9,7 @@ namespace BlogAPI.Application.ApiModels
         public string Content { get; set; }
         public string? Summary { get; set; }
         public GetBlog Blog { get; set; }
-
+        public List<string> CommentIds { get; set; }
 
         public GetPost()
         {
@@ -30,6 +30,7 @@ namespace BlogAPI.Application.ApiModels
                 throw new ArgumentException("Blog is not related to Post! Blog has to be Post's Parent.");
             }
             Blog = blog;
+            CommentIds = post.CommentIds;
         }
     }
 }

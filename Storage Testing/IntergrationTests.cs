@@ -361,6 +361,7 @@ namespace BlogAPI.Storage.InMemory
 
             var getPost = posts.First();
             Assert.NotNull(getPost);
+            
             //Modify Post
             var modifyPost = new ModifyPost(getPost);
 
@@ -369,7 +370,7 @@ namespace BlogAPI.Storage.InMemory
             modifyPost.Content = "new content isn't it great?";
 
             var postContent = JsonContent.Create(modifyPost);
-            var postResponse = await client.PostAsync("/post/update", postContent);
+            var postResponse = await client.PostAsync("post/update", postContent);
 
             //Assert
             Assert.True(postResponse.IsSuccessStatusCode);
