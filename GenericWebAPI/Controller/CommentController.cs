@@ -69,7 +69,9 @@ public class CommentController : BaseController<Comment>
             ID = item.ID,
             Content = item.Content,
             Username = item.Username,
-            Post = getPost
+            Post = getPost,
+            DateCreated= item.DateCreated,
+            DateModified = item.DateModfied
         });
     }
 
@@ -96,6 +98,21 @@ public class CommentController : BaseController<Comment>
         }
 
         return new ObjectResult(GetComments);
+    }
+
+    [HttpPost("Update")]
+    public ActionResult<Comment> Modify(ModifyComment model)
+    {
+        var comment = new Comment()
+        {
+            ID = model.ID,
+            Content = model.Content,
+            DateCreated = model.DateCreated,
+            DateModfied = DateTime.UtcNow,
+            PostId = model.PostId,
+            Username = model.Username,
+        };
+        return base.Post(comment);
     }
 
     [HttpDelete]

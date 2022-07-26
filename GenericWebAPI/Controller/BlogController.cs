@@ -27,6 +27,7 @@ public class BlogController : BaseController<Blog>
             ID = Guid.NewGuid().ToString(),
             Name = model.Name,
             Summary = model.Summary ?? "My Fantastic New Blog!!!",
+            PostIds = new()
         };
 
         return base.Post(blog);

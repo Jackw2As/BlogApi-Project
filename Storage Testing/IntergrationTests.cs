@@ -311,14 +311,23 @@ namespace BlogAPI.Storage.InMemory
 
             var post = posts.First();
 
-            //Act
-
             //Get Comment
-            var comments = await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={blog.ID}");
-
-            Assert.NotNull(posts);
-            Assert.NotEmpty(posts);
-
+            var comments = await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={post.ID}");
+            Assert.NotNull(comments);
+            if (comments.Count < 1)
+            {
+                //Sometimes default seeding doesn't create a comment.
+                var comment = new CreateComment("test", "test content", post.ID);
+                var commentContent1 = JsonContent.Create(comment);
+                var commentResponse1 = await client.PostAsync("/comment", commentContent1);
+                Assert.True(commentResponse1.IsSuccessStatusCode);
+                comments = await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={post.ID}");
+                Assert.NotNull(comments);
+            }
+            
+            Assert.NotEmpty(comments);
+            
+            //Act
             var getComment = comments.First();
             Assert.NotNull(getComment);
             //Modify Commment
@@ -326,12 +335,12 @@ namespace BlogAPI.Storage.InMemory
 
             modifyComment.Content = "new content";
 
-            var commentContent = JsonContent.Create(ModifyComment);
-            var commentResponse = await client.PostAsync("/comment/update", commentContent);
+            var commentContent = JsonContent.Create(modifyComment);
+            var commentResponse = await client.PostAsync("comment/update", commentContent);
 
 
             Assert.True(commentResponse.IsSuccessStatusCode);
-            var result = await client.GetFromJsonAsync<GetComment>($"comment?Id={blog.ID}");
+            var result = await client.GetFromJsonAsync<GetComment>($"comment?Id={modifyComment.ID}");
             Assert.Equal(getComment.ID, result.ID);
             Assert.Equal(getComment.Username, result.Username);
             Assert.Equal(getComment.Post, result.Post);
