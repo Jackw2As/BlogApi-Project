@@ -24,9 +24,12 @@ namespace BlogAPI.Storage.DatabaseModels
 
         public List<string> CommentIds { get; set; } = new();
 
-
         public Post()
         {
+            CommentIds = new List<string>();
+            Title = String.Empty;
+            Content = String.Empty;
+            BlogId = String.Empty;
             if(Summary != null)
             {
                 int substringLength = 250;
@@ -37,6 +40,5 @@ namespace BlogAPI.Storage.DatabaseModels
                 Summary = Content.Substring(0, substringLength);
             }
         }
-
     }
 }

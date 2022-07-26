@@ -24,7 +24,11 @@ namespace BlogAPI.Storage.DatabaseModels
 
         public Comment()
         {
-
+            Username = String.Empty;
+            Content = String.Empty;
+            PostId = String.Empty;
+            DateCreated = DateTime.MinValue;
+            DateModfied = DateTime.UtcNow;
         }
     }
 }
