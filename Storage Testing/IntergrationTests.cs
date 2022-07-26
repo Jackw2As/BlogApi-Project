@@ -39,25 +39,14 @@ namespace BlogAPI.Storage.InMemory
             var client = ApplicationFactory.CreateDefaultClient();
 
             //Create Blog
-            var createBlog = new CreateBlog(Faker.Name.First());
-            var blogContent = JsonContent.Create(createBlog);
-            var blogResponse = await client.PostAsync("/blog", blogContent);
-
-            Assert.True(blogResponse.IsSuccessStatusCode);
-
-            var blogLocation = blogResponse.Headers.Location;
-
-            Assert.NotNull(blogLocation);
+            var blog = await CreateBlog(client);
 
             //Create Post
-            var blog = await client.GetFromJsonAsync<GetBlog>(blogLocation);
-
             Assert.NotNull(blog);
-            var post = new CreatePost(Faker.Lorem.GetFirstWord(), Faker.Lorem.Paragraph(10), blog!);
-            var postContent = JsonContent.Create(post);
-            var postResponse = await client.PostAsync("/post", postContent);
+            var post = await CreatePost(client, blog);
 
-            Assert.True(postResponse.IsSuccessStatusCode);
+            Assert.NotNull(post);
+            Assert.Equal(blog, post.Blog);
         }
 
         [Fact]
@@ -131,28 +120,13 @@ namespace BlogAPI.Storage.InMemory
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
             
-            var createBlog = new CreateBlog("Blog Test");
-            var postBlogContent = JsonContent.Create(createBlog);
-            var blogResponse = await client.PostAsync("/blog",postBlogContent);
-            var blogLocation = blogResponse.Headers.Location;
-            var blog = await client.GetFromJsonAsync<GetBlog>(blogLocation);
-
+            var blog = await CreateBlog(client);
             Assert.NotNull(blog);
 
-            var createPost = new CreatePost("Post Test", "Post Content.", blog);
-            var postPostContent = JsonContent.Create(createPost);
-            var postResponse = await client.PostAsync("/post", postPostContent);
-            var postLocation = postResponse.Headers.Location;
-            var post = await client.GetFromJsonAsync<GetPost>(postLocation);
-
+            var post = await CreatePost(client, blog);
             Assert.NotNull(post);
 
-            var createComment = new CreateComment("Test Username", "Test Comment", post);
-            var commentCommentContent = JsonContent.Create(createComment);
-            var commentResponse = await client.PostAsync("/comment", commentCommentContent);
-            var commentLocation = commentResponse.Headers.Location;
-            var comment = await client.GetFromJsonAsync<GetComment>(commentLocation);
-
+            var comment = await CreateComment(client, post);
             Assert.NotNull(comment);
 
             //Act
@@ -173,28 +147,13 @@ namespace BlogAPI.Storage.InMemory
         {
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
-
-            var createBlog = new CreateBlog("Blog Test");
-            var postBlogContent = JsonContent.Create(createBlog);
-            var blogResponse = await client.PostAsync("/blog", postBlogContent);
-            var blogLocation = blogResponse.Headers.Location;
-            var blog = await client.GetFromJsonAsync<GetBlog>(blogLocation);
+            GetBlog? blog = await CreateBlog(client);
 
             Assert.NotNull(blog);
-
-            var createPost = new CreatePost("Post Test", "Post Content.", blog);
-            var postContent = JsonContent.Create(createPost);
-            var postResponse = await client.PostAsync("/post", postContent);
-            var postLocation = postResponse.Headers.Location;
-            var post = await client.GetFromJsonAsync<GetPost>(postLocation);
+            GetPost? post = await CreatePost(client, blog);
 
             Assert.NotNull(post);
-
-            var createComment = new CreateComment("Test Username", "Test Comment", post);
-            var commentCommentContent = JsonContent.Create(createComment);
-            var commentResponse = await client.PostAsync("/comment", commentCommentContent);
-            var commentLocation = commentResponse.Headers.Location;
-            var comment = await client.GetFromJsonAsync<GetComment>(commentLocation);
+            GetComment? comment = await CreateComment(client, post);
 
             Assert.NotNull(comment);
 
@@ -206,11 +165,13 @@ namespace BlogAPI.Storage.InMemory
 
             var blogList = await client.GetFromJsonAsync<List<GetBlog>>($"blog/list");
             var postList = await client.GetFromJsonAsync<List<GetPost>>($"post/list?BlogId={blog.ID}");
-            await Assert.ThrowsAsync<HttpRequestException>(async()  => await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={post.ID}"));
+            await Assert.ThrowsAsync<HttpRequestException>(async () => await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={post.ID}"));
 
             Assert.Contains(blog, blogList);
             Assert.DoesNotContain(post, postList);
         }
+
+        
 
         [Fact]
         public async void ShouldDeleteComment()
@@ -218,28 +179,13 @@ namespace BlogAPI.Storage.InMemory
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
 
-            var createBlog = new CreateBlog("Blog Test");
-            var postBlogContent = JsonContent.Create(createBlog);
-            var blogResponse = await client.PostAsync("/blog", postBlogContent);
-            var blogLocation = blogResponse.Headers.Location;
-            var blog = await client.GetFromJsonAsync<GetBlog>(blogLocation);
-
+            var blog = await CreateBlog(client);
             Assert.NotNull(blog);
 
-            var createPost = new CreatePost("Post Test", "Post Content.", blog);
-            var postPostContent = JsonContent.Create(createPost);
-            var postResponse = await client.PostAsync("/post", postPostContent);
-            var postLocation = postResponse.Headers.Location;
-            var post = await client.GetFromJsonAsync<GetPost>(postLocation);
-
+            var post = await CreatePost(client, blog);
             Assert.NotNull(post);
 
-            var createComment = new CreateComment("Test Username", "Test Comment", post);
-            var commentCommentContent = JsonContent.Create(createComment);
-            var commentResponse = await client.PostAsync("/comment", commentCommentContent);
-            var commentLocation = commentResponse.Headers.Location;
-            var comment = await client.GetFromJsonAsync<GetComment>(commentLocation);
-
+            var comment = await CreateComment(client, post);
             Assert.NotNull(comment);
 
             //Act
@@ -314,22 +260,24 @@ namespace BlogAPI.Storage.InMemory
             //Get Comment
             var comments = await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={post.ID}");
             Assert.NotNull(comments);
-            if (comments.Count < 1)
-            {
-                //Sometimes default seeding doesn't create a comment.
-                var comment = new CreateComment("test", "test content", post.ID);
-                var commentContent1 = JsonContent.Create(comment);
-                var commentResponse1 = await client.PostAsync("/comment", commentContent1);
-                Assert.True(commentResponse1.IsSuccessStatusCode);
-                comments = await client.GetFromJsonAsync<List<GetComment>>($"comment/list?PostId={post.ID}");
-                Assert.NotNull(comments);
-            }
+            
             
             Assert.NotEmpty(comments);
-            
+
             //Act
-            var getComment = comments.First();
+            GetComment getComment = new();
+                //Sometimes default database seeding doesn't create a comment.
+            if (comments.Count < 1)
+            {
+                getComment = await CreateComment(client, post);
+            }
+            else
+            {
+                getComment = comments.First();
+            }
+
             Assert.NotNull(getComment);
+
             //Modify Commment
             var modifyComment = new ModifyComment(getComment);
 
@@ -429,5 +377,37 @@ namespace BlogAPI.Storage.InMemory
             Assert.Equal(modifyBlog.Name, result.Name);
             Assert.Equal(modifyBlog.Summary, result.Summary);
         }
+
+        #region Helper Methods
+        private static async Task<GetComment> CreateComment(HttpClient client, GetPost post)
+        {
+            var createComment = new CreateComment("Test Username", "Test Comment", post);
+            var commentCommentContent = JsonContent.Create(createComment);
+            var commentResponse = await client.PostAsync("/comment", commentCommentContent);
+            var commentLocation = commentResponse.Headers.Location;
+            var comment = await client.GetFromJsonAsync<GetComment>(commentLocation);
+            return comment;
+        }
+
+        private static async Task<GetPost> CreatePost(HttpClient client, GetBlog blog)
+        {
+            var createPost = new CreatePost("Post Test", "Post Content.", blog);
+            var postContent = JsonContent.Create(createPost);
+            var postResponse = await client.PostAsync("/post", postContent);
+            var postLocation = postResponse.Headers.Location;
+            var post = await client.GetFromJsonAsync<GetPost>(postLocation);
+            return post;
+        }
+
+        private static async Task<GetBlog> CreateBlog(HttpClient client)
+        {
+            var createBlog = new CreateBlog("Blog Test");
+            var postBlogContent = JsonContent.Create(createBlog);
+            var blogResponse = await client.PostAsync("/blog", postBlogContent);
+            var blogLocation = blogResponse.Headers.Location;
+            var blog = await client.GetFromJsonAsync<GetBlog>(blogLocation);
+            return blog;
+        }
+        #endregion
     }
 }
