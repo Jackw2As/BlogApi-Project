@@ -32,6 +32,7 @@ namespace BlogAPI.Storage.InMemory
         {
         }
 
+        #region Create Tests
         [Fact]
         public async void ShouldCreateBlogThenCreatePost()
         {
@@ -115,6 +116,40 @@ namespace BlogAPI.Storage.InMemory
         }
 
         [Fact]
+        public async void ShouldNotCreatePost()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            string invalidId = "";
+            var post = new CreatePost("test", "test content", invalidId!);
+            var postContent = JsonContent.Create(post);
+            var postResponse = await client.PostAsync("/post", postContent);
+
+            //Assert
+            Assert.False(postResponse.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        public async void ShouldNotCreateComment()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            string invalidId = "";
+            var post = new CreateComment("test", "test content", invalidId!);
+            var postContent = JsonContent.Create(post);
+            var postResponse = await client.PostAsync("/comment", postContent);
+
+            //Assert
+            Assert.False(postResponse.IsSuccessStatusCode);
+        }
+        #endregion
+
+        #region Delete Tests
+        [Fact]
         public async void ShouldDeleteBlogAndPostsAndComments()
         {
             //Arrange
@@ -171,8 +206,6 @@ namespace BlogAPI.Storage.InMemory
             Assert.DoesNotContain(post, postList);
         }
 
-        
-
         [Fact]
         public async void ShouldDeleteComment()
         {
@@ -203,38 +236,9 @@ namespace BlogAPI.Storage.InMemory
             Assert.DoesNotContain(comment, commentList);
         }
 
-        [Fact]
-        public async void ShouldNotCreatePost()
-        {
-            //Arrange
-            var client = ApplicationFactory.CreateDefaultClient();
+        #endregion
 
-            //Act
-            string invalidId = "";
-            var post = new CreatePost("test", "test content", invalidId!);
-            var postContent = JsonContent.Create(post);
-            var postResponse = await client.PostAsync("/post", postContent);
-
-            //Assert
-            Assert.False(postResponse.IsSuccessStatusCode);
-        }
-
-        [Fact]
-        public async void ShouldNotCreateComment()
-        {
-            //Arrange
-            var client = ApplicationFactory.CreateDefaultClient();
-
-            //Act
-            string invalidId = "";
-            var post = new CreateComment("test", "test content", invalidId!);
-            var postContent = JsonContent.Create(post);
-            var postResponse = await client.PostAsync("/comment", postContent);
-
-            //Assert
-            Assert.False(postResponse.IsSuccessStatusCode);
-        }
-
+        #region Modify Tests
         [Fact]
         public async void ModifyComment()
         {
@@ -377,6 +381,7 @@ namespace BlogAPI.Storage.InMemory
             Assert.Equal(modifyBlog.Name, result.Name);
             Assert.Equal(modifyBlog.Summary, result.Summary);
         }
+        #endregion
 
         #region Helper Methods
         private static async Task<GetComment> CreateComment(HttpClient client, GetPost post)
