@@ -27,5 +27,10 @@
 
             return false;
         }
+
+        public override int GetHashCode()
+        {
+            return ID.GetHashCode();
+        }
     }
 }
