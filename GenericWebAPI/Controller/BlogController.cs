@@ -3,9 +3,7 @@ using BlogAPI.Storage.DatabaseModels;
 using Domain.ActionResults;
 using Domain.Base;
 using Domain.Interface;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 
 namespace BlogAPI.Application.Controller;
 
@@ -20,31 +18,24 @@ public class BlogController : BaseController<Blog>
     }
 
     [HttpPost]
-    public ActionResult<Blog> Post([FromBody]CreateBlog model)
+    public ActionResult<Blog> Post([FromBody] CreateBlog model)
     {
-        var blog = new Blog()
-        {
-            ID = Guid.NewGuid().ToString(),
-            Name = model.Name,
-            Summary = model.Summary ?? "My Fantastic New Blog!!!",
-            PostIds = new()
-        };
-
+        Blog blog = createBlog(model);
         return base.Post(blog);
     }
 
     [HttpGet]
-    public ActionResult<GetBlog> GetById([FromQuery]string id)
+    public ActionResult<GetBlog> GetById([FromQuery] string id)
     {
         var result = base.GetById(id);
-        var item = (result.Result as ObjectResult).Value as Blog;
+        var blog = (result.Result as ObjectResult).Value as Blog;
 
-        if (item == null)
+        if (blog == null)
         {
-            return new NotFoundObjectResult(item);
+            return new NotFoundObjectResult(blog);
         }
 
-        return new ObjectResult(new GetBlog(item));
+        return new ObjectResult(new GetBlog(blog));
     }
 
     [HttpGet("List")]
@@ -63,13 +54,7 @@ public class BlogController : BaseController<Blog>
     [HttpPost("Update")]
     public ActionResult<Blog> Modify(ModifyBlog model)
     {
-        var blog = new Blog()
-        {
-            ID = model.ID,
-            Name = model.Name,
-            Summary = model.Summary ?? "My Fantastic New Blog!!!",
-            PostIds = model.PostIds
-        };
+        Blog blog = createBlog(model);
         return base.Post(blog);
     }
 
@@ -83,38 +68,12 @@ public class BlogController : BaseController<Blog>
         }
 
         var blog = Repository.GetByID(id.ToString());
-        
-        //Delete Posts
-        foreach (var (postId, post) in
-        from postId in blog.PostIds
-        let post = PostRepository.GetByID(postId.ToString())
-        select (postId, post))
+
+        //Delete Posts in blog
+        var results = deletePosts(blog);
+        if(!results)
         {
-            //Delete Comments
-            foreach (var (comment, result1) in
-            from comment in PostRepository.GetByID(postId).CommentIds
-            let result1 = CommentRepository.Delete(comment)
-            select (comment, result1))
-            {
-                if (!result1)
-                {
-                    //Save any changes made(aka removed comments deleted)
-                    PostRepository.Modify(post);
-                    return new ServerError($"Unable to delete comment id = {comment}. Try deleting comment before deleting blog!");
-                }
-
-                post.CommentIds.Remove(comment);
-            }
-
-            var result2 = PostRepository.Delete(postId);
-            if (!result2)
-            {
-                //Save any changes made(aka removed posts deleted)
-                Repository.Modify(blog);
-                return new ServerError($"Unable to delete post id = {postId}. Try deleting comment before deleting blog");
-            }
-
-            blog.PostIds.Clear();
+            return new ServerError($"Unable to delete post. Try deleting posts before deleting blog");
         }
 
         //Delete Blog
@@ -125,5 +84,74 @@ public class BlogController : BaseController<Blog>
         Repository.Modify(blog);
         return new ServerError($"Unable to delete id = {id}.");
     }
+
+    private bool deleteComments(string postId, Post post)
+    {
+        foreach (var (comment, result) in
+            from comment in PostRepository.GetByID(postId).CommentIds
+            let result = CommentRepository.Delete(comment)
+            select (comment, result))
+        {
+            if (!result)
+            {
+                //Save any changes made(aka removed comments deleted)
+                PostRepository.Modify(post);
+                return false;
+            }
+            post.CommentIds.Remove(comment);
+        }
+        return true;
+    }
+
+    private bool deletePosts(Blog blog)
+    {
+        foreach (var (postId, post) in
+        from postId in blog.PostIds
+        let post = PostRepository.GetByID(postId.ToString())
+        select (postId, post))
+        {
+            //delete commments in post
+            var results = deleteComments(postId, post);
+            if (!results)
+            {
+                return false;
+            }
+
+            var result2 = PostRepository.Delete(postId);
+            if (!result2)
+            {
+                //Save any changes made(aka remove reference to posts deleted)
+                Repository.Modify(blog);
+                return false;
+            }
+
+            blog.PostIds.Clear();
+        }
+        return true;
+    }
+
+    #region helpers
+    private static Blog createBlog(CreateBlog model)
+    {
+        return new Blog()
+        {
+            ID = Guid.NewGuid().ToString(),
+            Name = model.Name,
+            Summary = model.Summary ?? "My Fantastic New Blog!!!",
+            PostIds = new()
+        };
+    }
+
+    private static Blog createBlog(ModifyBlog model)
+    {
+        return new Blog()
+        {
+            ID = model.ID,
+            Name = model.Name,
+            Summary = model.Summary ?? "My Fantastic New Blog!!!",
+            PostIds = model.PostIds
+        };
+    }
+    #endregion
 }
 
