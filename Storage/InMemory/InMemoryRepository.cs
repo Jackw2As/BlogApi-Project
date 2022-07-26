@@ -88,6 +88,7 @@ namespace BlogAPI.Storage.InMemory
                 var dbSet = _dbContext.Set<T>();
                 dbSet.Update(model);
                 _dbContext.SaveChanges();
+                return true;
             }
             return false;
         }

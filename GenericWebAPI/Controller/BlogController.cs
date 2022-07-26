@@ -43,11 +43,7 @@ public class BlogController : BaseController<Blog>
             return new NotFoundObjectResult(item);
         }
 
-        return new ObjectResult(new GetBlog(){
-            ID = item.ID,
-            Name = item.Name,
-            Summary = item.Summary,
-        });
+        return new ObjectResult(new GetBlog(item));
     }
 
     [HttpGet("List")]
@@ -63,6 +59,20 @@ public class BlogController : BaseController<Blog>
         return new ObjectResult(getBlogs);
     }
 
+    [HttpPost("Update")]
+    public ActionResult<Blog> Modify(ModifyBlog model)
+    {
+        var blog = new Blog()
+        {
+            ID = model.ID,
+            Name = model.Name,
+            Summary = model.Summary ?? "My Fantastic New Blog!!!",
+            PostIds = model.PostIds
+        };
+        return base.Post(blog);
+    }
+
+    [HttpDelete]
     public ActionResult Delete([FromQuery] Guid id)
     {
         if (!Repository.Exists(id.ToString()))

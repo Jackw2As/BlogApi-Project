@@ -368,7 +368,7 @@ namespace BlogAPI.Storage.InMemory
             modifyPost.Summary = "new summary for content";
             modifyPost.Content = "new content isn't it great?";
 
-            var postContent = JsonContent.Create(ModifyComment);
+            var postContent = JsonContent.Create(modifyPost);
             var postResponse = await client.PostAsync("/post/update", postContent);
 
             //Assert
@@ -405,12 +405,12 @@ namespace BlogAPI.Storage.InMemory
             modifyBlog.Name = "New Name";
             modifyBlog.Summary = "New Summary!";
 
-            var blogContent = JsonContent.Create(ModifyComment);
+            var blogContent = JsonContent.Create(modifyBlog);
             var PostResponse = await client.PostAsync("blog/update", blogContent);
 
             //Assert
             Assert.True(PostResponse.IsSuccessStatusCode);
-            var result = await client.GetFromJsonAsync<GetBlog>($"comment?Id={modifyBlog.ID}");
+            var result = await client.GetFromJsonAsync<GetBlog>($"blog?Id={modifyBlog.ID}");
             Assert.Equal(getBlog.ID, result.ID);
 
             Assert.NotEqual(getBlog.Name, result.Name);
