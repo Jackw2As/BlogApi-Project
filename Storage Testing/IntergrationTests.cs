@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
@@ -472,7 +473,7 @@ namespace BlogAPI.Storage.InMemory
         {
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
-            
+
             //Act
             var blog = await CreateBlog(client);
 
@@ -489,7 +490,7 @@ namespace BlogAPI.Storage.InMemory
 
             //Act
             var invalidBlog = new CreateBlog();
-            
+
             invalidBlog.Name = "123";
             var blog = await CreateBlog(client, invalidBlog);
             //Assert
@@ -505,7 +506,7 @@ namespace BlogAPI.Storage.InMemory
 
             //Act
             var invalidBlog = new CreateBlog();
-            
+
             invalidBlog.Name = Faker.Lorem.Sentence(25);
             var blog = await CreateBlog(client, invalidBlog);
             //Assert
@@ -571,7 +572,7 @@ namespace BlogAPI.Storage.InMemory
             var client = ApplicationFactory.CreateDefaultClient();
             var blog = await CreateBlog(client);
             Assert.NotNull(blog);
-            
+
             //Act
             var invalidBlog = new CreateBlog();
             invalidBlog.Name = "123";
@@ -798,6 +799,56 @@ namespace BlogAPI.Storage.InMemory
 
             Assert.True(response.IsSuccessStatusCode);
         }
+
+        [Theory]
+        [ClassData(typeof(PostModifyTestData))]
+        public async void PostModifyShouldFail(ModifyPost invalidPost)
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+            var post = await CreatePost(client);
+            Assert.NotNull(post);
+
+            //invalidComment shouldn't fail here because ID is invalid.
+            invalidPost.ID = post.ID;
+
+            //Act
+            var response = await ModifyPost(client, invalidPost);
+            //Assert
+            Assert.False(response.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //Using Incorrect ID
+        public async void PostModifyShouldFail2()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidPost = new ModifyPost("My Title", "Fantastic Content");
+            invalidPost.ID = Guid.NewGuid().ToString();
+
+            var post = await ModifyPost(client, invalidPost);
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //ID can't be null
+        public async void PostModifyShouldFail3()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidPost = new ModifyPost("My Title", "Fantastic Content");
+            invalidPost.ID = null;
+
+            var response = await ModifyPost(client, invalidPost);
+            //Assert
+            Assert.False(response.IsSuccessStatusCode);
+        }
         #endregion
 
         #region Comment Models Tests
@@ -812,6 +863,53 @@ namespace BlogAPI.Storage.InMemory
 
             //Assert
             Assert.NotNull(comment);
+        }
+
+        [Theory]
+        [ClassData(typeof(CommentCreateTestData))]
+        public async void CommentCreateShouldFailValidation(CreateComment invalidComment)
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var post = await CreatePost(client);
+            invalidComment.PostId = post.ID;
+
+            var response = await CreateComment(client, invalidComment);
+
+            //Assert
+            Assert.False(response.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //Using Incorrect PostID
+        public async void CommentCreateShouldFailValidation2()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidComment = new CreateComment("username", "Great Post", Guid.NewGuid().ToString());
+
+            var post = await CreateComment(client, invalidComment);
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //PostID can't be null
+        public async void CommentCreateShouldFailValidation3()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidComment = new CreateComment("username", "Great Post", (GetPost)null);
+
+            var post = await CreateComment(client, invalidComment);
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
         }
 
         [Fact]
@@ -830,5 +928,118 @@ namespace BlogAPI.Storage.InMemory
             Assert.True(response.IsSuccessStatusCode);
         }
         #endregion
+
+        [Theory]
+        [ClassData(typeof(CommentModifyTestData))]
+        public async void CommentModifyShouldFailValidation(ModifyComment invalidComment)
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+            var comment = await CreateComment(client);
+            Assert.NotNull(comment);
+
+            //invalidComment shouldn't fail here because ID is invalid.
+            invalidComment.ID = comment.ID;
+            
+            //Act
+            var response = await ModifyComment(client, invalidComment);
+            //Assert
+            Assert.False(response.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //Using Incorrect ID
+        public async void CommentModifyShouldFailValidation2()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidComment = new ModifyComment("Great Post");
+            invalidComment.ID = Guid.NewGuid().ToString();
+
+            var response = await ModifyComment(client, invalidComment);
+            //Assert
+            Assert.False(response.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //ID can't be null
+        public async void CommentModifyShouldFailValidation3()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidComment = new ModifyComment("Great Post");
+            invalidComment.ID = null;
+
+            var response = await ModifyComment(client, invalidComment);
+            //Assert
+            Assert.False(response.IsSuccessStatusCode);
+        }
+    }
+
+    internal class PostModifyTestData : IEnumerable<object[]>
+    {
+        public IEnumerator<object[]> GetEnumerator()
+        {
+            //Title can't be null
+            yield return new object[] { new ModifyPost(null, "some content") };
+
+            //Title min 3
+            yield return new object[] { new ModifyPost("12", "some content") };
+
+            //Title max 100
+            yield return new object[] { new ModifyPost(Faker.Lorem.Sentence(101), "some content") };
+
+            //Summary max 255
+            yield return new object[] { new ModifyPost("Great Title", "some content", Faker.Lorem.Sentence(256)) };
+
+            //Content can't be null
+            yield return new object[] { new ModifyPost("Great Title", null) };
+
+            //Content max 5000
+            yield return new object[] { new ModifyPost("Great Title", Faker.Lorem.Sentence(5000)) };
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    public class CommentCreateTestData : IEnumerable<object[]>
+    {
+        public IEnumerator<object[]> GetEnumerator()
+        {
+            //Username can't be null
+            yield return new object[] { new CreateComment(null, string.Empty, string.Empty) };
+
+            //Username max length 20
+            yield return new object[] { new CreateComment(Faker.Lorem.Sentence(21), string.Empty, string.Empty) };
+
+            //Username should not contain whitespace.
+            yield return new object[] { new CreateComment("Invalid User Name", null, string.Empty) };
+
+            //Content can't be null
+            yield return new object[] { new CreateComment("ValidUserName", null, string.Empty) };
+
+            //Content max length is 300
+            yield return new object[] { new CreateComment("ValidUserName", Faker.Lorem.Sentence(301), string.Empty) };
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    public class CommentModifyTestData : IEnumerable<object[]>
+    {
+        public IEnumerator<object[]> GetEnumerator()
+        {
+            //Content can't be null
+            yield return new object[] { new ModifyComment((string)null) };
+
+            //Content max length is 300
+            yield return new object[] { new ModifyComment(Faker.Lorem.Sentence(301)) };
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
