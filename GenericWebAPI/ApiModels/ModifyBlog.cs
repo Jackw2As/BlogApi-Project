@@ -18,6 +18,10 @@ namespace BlogAPI.Application.ApiModels
             Name = getBlog.Name;
             Summary = getBlog.Summary;
         }
-        
+        public ModifyBlog(string name, string? summary = null)
+        {
+            Name = name;
+            Summary = summary;
+        }
     }
 }
