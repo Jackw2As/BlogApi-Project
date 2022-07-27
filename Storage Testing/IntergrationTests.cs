@@ -24,6 +24,86 @@ namespace BlogAPI.Storage.InMemory
                     
                 });
         }
+        #region Helper Methods
+        protected static async Task<GetComment> CreateComment(HttpClient client, GetPost post)
+        {
+            var createComment = new CreateComment("Test Username", "Test Comment", post);
+            var commentCommentContent = JsonContent.Create(createComment);
+            var commentResponse = await client.PostAsync("/comment", commentCommentContent);
+            var commentLocation = commentResponse.Headers.Location;
+            var comment = await client.GetFromJsonAsync<GetComment>(commentLocation);
+            return comment;
+        }
+
+        protected static async Task<GetComment> CreateComment(HttpClient client)
+        {
+            var blog = await CreateBlog(client);
+            var post = await CreatePost(client, blog);
+            return await CreateComment(client, post);
+        }
+
+        protected static async Task<GetPost> CreatePost(HttpClient client, GetBlog blog)
+        {
+            var createPost = new CreatePost("Post Test", "Post Content.", blog);
+            var postContent = JsonContent.Create(createPost);
+            var postResponse = await client.PostAsync("/post", postContent);
+            var postLocation = postResponse.Headers.Location;
+            var post = await client.GetFromJsonAsync<GetPost>(postLocation);
+            return post;
+        }
+
+        protected static async Task<GetPost> CreatePost(HttpClient client)
+        {
+            var blog = await CreateBlog(client);
+            return await CreatePost(client, blog);
+        }
+
+        protected static async Task<GetBlog> CreateBlog(HttpClient client)
+        {
+            var createBlog = new CreateBlog("Blog Test");
+            var postBlogContent = JsonContent.Create(createBlog);
+            var blogResponse = await client.PostAsync("/blog", postBlogContent);
+            var blogLocation = blogResponse.Headers.Location;
+            var blog = await client.GetFromJsonAsync<GetBlog>(blogLocation);
+            return blog;
+        }
+
+        protected static async Task<HttpResponseMessage> CreateBlog(HttpClient client, CreateBlog createBlog)
+        {
+            var postBlogContent = JsonContent.Create(createBlog);
+            return await client.PostAsync("/blog", postBlogContent);
+        }
+
+        protected static async Task<HttpResponseMessage> CreatePost(HttpClient client, CreatePost createPost)
+        {
+            var postContent = JsonContent.Create(createPost);
+            return await client.PostAsync("/post", postContent);
+        }
+
+        protected static async Task<HttpResponseMessage> CreateComment(HttpClient client, CreateComment createComment)
+        {
+            var commentCommentContent = JsonContent.Create(createComment);
+            return await client.PostAsync("/comment", commentCommentContent);
+        }
+
+        protected static async Task<HttpResponseMessage> ModifyBlog(HttpClient client, ModifyBlog createBlog)
+        {
+            var postBlogContent = JsonContent.Create(createBlog);
+            return await client.PostAsync("/blog/update", postBlogContent);
+        }
+
+        protected static async Task<HttpResponseMessage> ModifyPost(HttpClient client, ModifyPost createPost)
+        {
+            var postContent = JsonContent.Create(createPost);
+            return await client.PostAsync("/post/update", postContent);
+        }
+
+        protected static async Task<HttpResponseMessage> ModifyComment(HttpClient client, ModifyComment createComment)
+        {
+            var commentCommentContent = JsonContent.Create(createComment);
+            return await client.PostAsync("/comment/update", commentCommentContent);
+        }
+        #endregion
     }
 
     public class IntergrationTests : BaseIntergrationTests
@@ -240,7 +320,7 @@ namespace BlogAPI.Storage.InMemory
 
         #region Modify Tests
         [Fact]
-        public async void ModifyComment()
+        public async void ModifyCommentSuccessfully()
         {
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
@@ -300,7 +380,7 @@ namespace BlogAPI.Storage.InMemory
             Assert.Equal(modifyComment.Content, result.Content);
         }
         [Fact]
-        public async void ModifyPost()
+        public async void ModifyPostSuccessfully()
         {
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
@@ -348,7 +428,7 @@ namespace BlogAPI.Storage.InMemory
             Assert.Equal(modifyPost.Content, result.Content);
         }
         [Fact]
-        public async void ModifyBlog()
+        public async void ModifyBlogSuccessfully()
         {
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
@@ -383,35 +463,118 @@ namespace BlogAPI.Storage.InMemory
         }
         #endregion
 
-        #region Helper Methods
-        private static async Task<GetComment> CreateComment(HttpClient client, GetPost post)
+        
+    }
+
+    public class ModelValidationTests : BaseIntergrationTests
+    {
+        #region Blog Models Tests
+        [Fact]
+        public async void BlogCreateShouldSucceedValidation()
         {
-            var createComment = new CreateComment("Test Username", "Test Comment", post);
-            var commentCommentContent = JsonContent.Create(createComment);
-            var commentResponse = await client.PostAsync("/comment", commentCommentContent);
-            var commentLocation = commentResponse.Headers.Location;
-            var comment = await client.GetFromJsonAsync<GetComment>(commentLocation);
-            return comment;
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+            
+            //Act
+            var blog = await CreateBlog(client);
+
+            //Assert
+            Assert.NotNull(blog);
         }
 
-        private static async Task<GetPost> CreatePost(HttpClient client, GetBlog blog)
+        [Fact]
+        public void BlogCreateShouldFailValidation()
         {
-            var createPost = new CreatePost("Post Test", "Post Content.", blog);
-            var postContent = JsonContent.Create(createPost);
-            var postResponse = await client.PostAsync("/post", postContent);
-            var postLocation = postResponse.Headers.Location;
-            var post = await client.GetFromJsonAsync<GetPost>(postLocation);
-            return post;
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
         }
 
-        private static async Task<GetBlog> CreateBlog(HttpClient client)
+        [Fact]
+        public async void BlogShouldModifySuccessfully()
         {
-            var createBlog = new CreateBlog("Blog Test");
-            var postBlogContent = JsonContent.Create(createBlog);
-            var blogResponse = await client.PostAsync("/blog", postBlogContent);
-            var blogLocation = blogResponse.Headers.Location;
-            var blog = await client.GetFromJsonAsync<GetBlog>(blogLocation);
-            return blog;
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+            var blog = await CreateBlog(client);
+            Assert.NotNull(blog);
+            //Act
+            var modifiedBlog = new ModifyBlog(blog);
+            modifiedBlog.Name = "A Correctly Named Blog";
+            modifiedBlog.Summary = "A Correctly Named Summary";
+
+            var response = await ModifyBlog(client, modifiedBlog);
+
+            Assert.True(response.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        public void BlogModifyShouldFailValidation()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+        }
+        #endregion
+
+        #region Post Models Tests
+        [Fact]
+        public async void PostCreateShouldSucceedValidation()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var post = await CreatePost(client);
+
+            //Assert
+            Assert.NotNull(post);
+        }
+
+        [Fact]
+        public async void PostShouldModifySuccessfully()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+            var post = await CreatePost(client);
+            Assert.NotNull(post);
+            //Act
+            var modifiedPost = new ModifyPost(post);
+            modifiedPost.Summary = "Correct Summary";
+            modifiedPost.Content = "Correct Content";
+            modifiedPost.Title = "Correct Title";
+
+            var response = await ModifyPost(client, modifiedPost);
+
+            Assert.True(response.IsSuccessStatusCode);
+        }
+        #endregion
+
+        #region Comment Models Tests
+        [Fact]
+        public async void CommentCreateShouldSucceedValidation()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var comment = await CreateComment(client);
+
+            //Assert
+            Assert.NotNull(comment);
+        }
+
+        [Fact]
+        public async void CommentShouldModifySuccessfully()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+            var comment = await CreateComment(client);
+            Assert.NotNull(comment);
+            //Act
+            var modifiedComment = new ModifyComment(comment);
+            modifiedComment.Content = "A Correctly Named Comment";
+
+            var response = await ModifyComment(client, modifiedComment);
+
+            Assert.True(response.IsSuccessStatusCode);
         }
         #endregion
     }
