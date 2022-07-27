@@ -15,5 +15,9 @@ namespace BlogAPI.Application.ApiModels
             ID = getComment.ID;
             Content = getComment.Content;
         }
+        public ModifyComment(string content)
+        {
+            Content = content;
+        }
     }
 }

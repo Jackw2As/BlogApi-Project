@@ -20,5 +20,11 @@ namespace BlogAPI.Application.ApiModels
             Summary = getPost.Summary;
             Content = getPost.Content;
         }
+        public ModifyPost(string title, string content, string? summary = null)
+        {
+            Summary = summary;
+            Title = title;
+            Content = content;
+        }
     }
 }
