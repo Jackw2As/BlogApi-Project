@@ -46,26 +46,26 @@ namespace Application.Controller
             {
                 return new NotFoundObjectResult(post);
             }
-
-            var blog = BlogRepository.GetByID(post.BlogId);
-            var getblog = new GetBlog(blog);
-
-            return new(new GetPost(post, getblog));
+            return new(new GetPost(post));
         }
 
         [HttpGet("List")]
         public ActionResult<List<GetPost>> GetAll([FromQuery] Guid BlogId)
         {
-            var blog = BlogRepository.GetByID(BlogId.ToString());
-            if (blog == null) return new NotFoundObjectResult(BlogId);
-
+            try
+            {
+                var blog = BlogRepository.GetByID(BlogId.ToString());
+            }
+            catch (Exception)
+            {
+                return new NotFoundObjectResult(BlogId);
+            }
             var posts = Repository.GetByQuery(post => post.BlogId == BlogId.ToString());
 
-            var getBlog = new GetBlog(blog);
             var getPosts = new List<GetPost>();
             foreach (var post in posts)
             {
-                getPosts.Add(new GetPost(post, getBlog));
+                getPosts.Add(new GetPost(post));
             }
 
             return new ObjectResult(getPosts);
@@ -74,7 +74,7 @@ namespace Application.Controller
         [HttpPost("Update")]
         public ActionResult<Post> Modify(ModifyPost model)
         {
-            Post post = CreatePost(model);
+            Post post = modifyPost(model);
             return base.Post(post);
         }
 
@@ -149,19 +149,16 @@ namespace Application.Controller
                 Summary = model.Summary,
             };
         }
-        private static Post CreatePost(ModifyPost model)
+        private Post modifyPost(ModifyPost model)
         {
-            return new Post()
-            {
-                ID = model.ID,
-                Content = model.Content,
-                DateCreated = model.DateCreated,
-                DateModified = DateTime.UtcNow,
-                BlogId = model.BlogID,
-                CommentIds = model.CommentIds,
-                Summary = model.Summary ?? "My Fantastic New Blog!!!",
-                Title = model.Title
-            };
+            var post = Repository.GetByID(model.ID);
+
+            post.Title = model.Title;
+            post.Summary = model.Summary ?? "My Fantastic New Blog!!!";
+            post.DateModified = DateTime.UtcNow;
+            post.Content = model.Content;
+
+            return post;
         }
         #endregion
     }

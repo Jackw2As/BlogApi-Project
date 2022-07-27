@@ -127,7 +127,8 @@ namespace BlogAPI.Storage.InMemory
             var post = await CreatePost(client, blog);
 
             Assert.NotNull(post);
-            Assert.Equal(blog, post.Blog);
+            var posts = await client.GetFromJsonAsync<List<GetPost>>($"/post/list?BlogID={blog.ID}");
+            Assert.Contains(posts, p => p == post);
         }
 
         [Fact]
@@ -192,7 +193,6 @@ namespace BlogAPI.Storage.InMemory
             Assert.NotNull(comment);
             Assert.Equal(createComment.Username, comment.Username);
             Assert.Equal(createComment.Content, comment.Content);
-            Assert.Equal(createComment.PostId, comment.Post.ID);
         }
 
         [Fact]
@@ -375,7 +375,6 @@ namespace BlogAPI.Storage.InMemory
             var result = await client.GetFromJsonAsync<GetComment>($"comment?Id={modifyComment.ID}");
             Assert.Equal(getComment.ID, result.ID);
             Assert.Equal(getComment.Username, result.Username);
-            Assert.Equal(getComment.Post, result.Post);
             Assert.NotEqual(getComment.Content, result.Content);
             Assert.Equal(modifyComment.Content, result.Content);
         }
@@ -417,7 +416,6 @@ namespace BlogAPI.Storage.InMemory
             Assert.True(postResponse.IsSuccessStatusCode);
             var result = await client.GetFromJsonAsync<GetPost>($"post?Id={modifyPost.ID}");
             Assert.Equal(getPost.ID, result.ID);
-            Assert.Equal(getPost.Blog, result.Blog);
 
             Assert.NotEqual(getPost.Summary, result.Summary);
             Assert.NotEqual(getPost.Title, result.Title);

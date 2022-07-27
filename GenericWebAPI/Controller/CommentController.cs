@@ -4,11 +4,6 @@ using Domain.ActionResults;
 using Domain.Base;
 using Domain.Interface;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Application.Controller;
 
@@ -54,26 +49,26 @@ public class CommentController : BaseController<Comment>
         {
             return new NotFoundObjectResult(post);
         }
-
-        var getPost = createPost(post);
-        return new(new GetComment(comment, getPost));
+        return new(new GetComment(comment));
     }
 
     [HttpGet("List")]
     public ActionResult<List<GetComment>> GetAll([FromQuery] Guid PostId)
     {
-        var post = PostRepository.GetByID(PostId.ToString());
-        if (post == null)
+        try
         {
-            return NotFound(PostId);
+            var post = PostRepository.GetByID(PostId.ToString());
+        }
+        catch (Exception)
+        {
+            return new NotFoundObjectResult(PostId);
         }
 
-        GetPost getPost = createPost(post);
         var comments = Repository.GetByQuery(comment => comment.PostId == PostId.ToString());
         var GetComments = new List<GetComment>();
         foreach (var comment in comments)
         {
-            GetComments.Add(new GetComment(comment, getPost));
+            GetComments.Add(new GetComment(comment));
         }
 
         return new ObjectResult(GetComments);
@@ -82,7 +77,7 @@ public class CommentController : BaseController<Comment>
     [HttpPost("Update")]
     public ActionResult<Comment> Modify(ModifyComment model)
     {
-        Comment comment = createComment(model);
+        Comment comment = modifyComment(model);
         return base.Post(comment);
     }
 
@@ -134,25 +129,13 @@ public class CommentController : BaseController<Comment>
             Username = model.Username,
         };
     }
-    private static Comment createComment(ModifyComment model)
+    private Comment modifyComment(ModifyComment model)
     {
-        return new Comment()
-        {
-            ID = model.ID,
-            Content = model.Content,
-            DateCreated = model.DateCreated,
-            DateModfied = DateTime.UtcNow,
-            PostId = model.PostId,
-            Username = model.Username,
-        };
-    }
+        var comment = Repository.GetByID(model.ID);
 
-    private GetPost createPost(Post post)
-    {
-        var blog = BlogRepository.GetByID(post.BlogId);
-        var getblog = new GetBlog(blog);
-        var getPost = new GetPost(post, getblog);
-        return getPost;
+        comment.Content = model.Content;
+        comment.DateCreated = DateTime.UtcNow;
+        return comment;
     }
     #endregion
 }

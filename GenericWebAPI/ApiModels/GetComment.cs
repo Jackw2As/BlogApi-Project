@@ -7,7 +7,6 @@ namespace BlogAPI.Application.ApiModels
     {
         public string Username { get; set; }
         public string Content { get; set; }
-        public GetPost Post { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
 
@@ -15,21 +14,14 @@ namespace BlogAPI.Application.ApiModels
         {
             Username = String.Empty;
             Content = String.Empty;
-            Post = new GetPost();
-            DateCreated = DateTime.Now;
+            DateCreated = DateTime.MinValue;
         }
-        public GetComment(Comment comment, GetPost post)
+        public GetComment(Comment comment)
         {
             ID = comment.ID;
             Username = comment.Username;
             Content = comment.Content;
             DateCreated = comment.DateCreated;
-
-            if (comment.PostId != post.ID.ToString())
-            {
-                throw new ArgumentException("Post is not related to Comment! Post has to be comment Parent.");
-            }
-            Post = post;
         }
     }
 }

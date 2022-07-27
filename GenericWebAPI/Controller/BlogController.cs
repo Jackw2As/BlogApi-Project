@@ -54,7 +54,7 @@ public class BlogController : BaseController<Blog>
     [HttpPost("Update")]
     public ActionResult<Blog> Modify(ModifyBlog model)
     {
-        Blog blog = createBlog(model);
+        Blog blog = modifyBlog(model);
         return base.Post(blog);
     }
 
@@ -142,15 +142,14 @@ public class BlogController : BaseController<Blog>
         };
     }
 
-    private static Blog createBlog(ModifyBlog model)
+    private Blog modifyBlog(ModifyBlog model)
     {
-        return new Blog()
-        {
-            ID = model.ID,
-            Name = model.Name,
-            Summary = model.Summary ?? "My Fantastic New Blog!!!",
-            PostIds = model.PostIds
-        };
+        var blog = Repository.GetByID(model.ID);
+
+        blog.Summary = model.Summary ?? "My Fantastic New Blog!!!";
+        blog.Name = model.Name;
+
+        return blog;
     }
     #endregion
 }
