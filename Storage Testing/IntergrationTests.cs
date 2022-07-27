@@ -128,7 +128,7 @@ namespace BlogAPI.Storage.InMemory
 
             Assert.NotNull(post);
             var posts = await client.GetFromJsonAsync<List<GetPost>>($"/post/list?BlogID={blog.ID}");
-            Assert.Contains(posts, p => p == post);
+            Assert.Contains(posts, p => p.ID == post.ID);
         }
 
         [Fact]
@@ -481,10 +481,69 @@ namespace BlogAPI.Storage.InMemory
         }
 
         [Fact]
-        public void BlogCreateShouldFailValidation()
+        //Name Minimuim Length 4
+        public async void BlogCreateShouldFailValidation()
         {
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidBlog = new CreateBlog();
+            
+            invalidBlog.Name = "123";
+            var blog = await CreateBlog(client, invalidBlog);
+            //Assert
+            Assert.False(blog.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //Name Maximum Length 24
+        public async void BlogCreateShouldFailValidation2()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidBlog = new CreateBlog();
+            
+            invalidBlog.Name = Faker.Lorem.Sentence(25);
+            var blog = await CreateBlog(client, invalidBlog);
+            //Assert
+            Assert.False(blog.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //Summary Maximum Length 300
+        public async void BlogCreateShouldFailValidation3()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidBlog = new CreateBlog();
+
+            invalidBlog.Name = "Good Name";
+            invalidBlog.Summary = Faker.Lorem.Sentence(301);
+            var blog = await CreateBlog(client, invalidBlog);
+            //Assert
+            Assert.False(blog.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //Summary Minimum Length 1
+        public async void BlogCreateShouldFailValidation4()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidBlog = new CreateBlog();
+
+            invalidBlog.Name = "Good Name";
+            invalidBlog.Summary = "";
+            var blog = await CreateBlog(client, invalidBlog);
+            //Assert
+            Assert.False(blog.IsSuccessStatusCode);
         }
 
         [Fact]
@@ -505,10 +564,70 @@ namespace BlogAPI.Storage.InMemory
         }
 
         [Fact]
-        public void BlogModifyShouldFailValidation()
+        //Name too short (min 4)
+        public async void BlogModifyShouldFailValidation()
         {
             //Arrange
             var client = ApplicationFactory.CreateDefaultClient();
+            var blog = await CreateBlog(client);
+            Assert.NotNull(blog);
+            
+            //Act
+            var invalidBlog = new CreateBlog();
+            invalidBlog.Name = "123";
+            var response = await CreateBlog(client, invalidBlog);
+            //Assert
+            Assert.False(response.IsSuccessStatusCode);
+        }
+        [Fact]
+        //Name too long (max 24)
+        public async void BlogModifyShouldFailValidation2()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+            var blog = await CreateBlog(client);
+            Assert.NotNull(blog);
+
+            //Act
+            var invalidBlog = new CreateBlog();
+            invalidBlog.Name = Faker.Lorem.Sentence(25);
+            var response = await CreateBlog(client, invalidBlog);
+            //Assert
+            Assert.False(response.IsSuccessStatusCode);
+        }
+        [Fact]
+        //Summary Minimum Length 1
+        public async void BlogModifyShouldFailValidation3()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+            var blog = await CreateBlog(client);
+            Assert.NotNull(blog);
+
+            //Act
+            var invalidBlog = new CreateBlog();
+            invalidBlog.Name = "Good Name";
+            invalidBlog.Summary = "";
+            var response = await CreateBlog(client, invalidBlog);
+            //Assert
+            Assert.False(response.IsSuccessStatusCode);
+        }
+        [Fact]
+        //Summary too long(max length 300)
+        public async void BlogModifyShouldFailValidation4()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+            var blog = await CreateBlog(client);
+            Assert.NotNull(blog);
+
+            //Act
+            var invalidBlog = new CreateBlog();
+            invalidBlog.Name = "Good Name";
+            invalidBlog.Summary = Faker.Lorem.Sentence(301); ;
+            var response = await CreateBlog(client, invalidBlog);
+            //Assert
+            Assert.False(response.IsSuccessStatusCode);
         }
         #endregion
 
