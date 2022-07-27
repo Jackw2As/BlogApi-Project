@@ -646,6 +646,142 @@ namespace BlogAPI.Storage.InMemory
         }
 
         [Fact]
+        //Title Minimuim Length 3
+        public async void PostCreateShouldFailValidation()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidPost = new CreatePost();
+
+            invalidPost.Title = "12";
+            var post = await CreatePost(client, invalidPost);
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //Title Max Length 100
+        public async void PostCreateShouldFailValidation2()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidPost = new CreatePost();
+
+            invalidPost.Title = Faker.Lorem.Sentence(101);
+            var post = await CreatePost(client, invalidPost);
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
+        }
+        [Fact]
+        //Summary Min Length 1
+        public async void PostCreateShouldFailValidation3()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidPost = new CreatePost();
+
+            invalidPost.Title = "Good Title";
+            invalidPost.Summary = "";
+            var post = await CreatePost(client, invalidPost);
+
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
+        }
+        [Fact]
+        //Summary Max Length 255
+        public async void PostCreateShouldFailValidation4()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidPost = new CreatePost();
+
+            invalidPost.Title = "Good Title";
+            invalidPost.Summary = Faker.Lorem.Sentence(256);
+
+            var post = await CreatePost(client, invalidPost);
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
+        }
+        [Fact]
+        //Content can't be null
+        public async void PostCreateShouldFailValidation5()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidPost = new CreatePost();
+
+            invalidPost.Title = "Good Title";
+            invalidPost.Content = null;
+
+            var post = await CreatePost(client, invalidPost);
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //Content Max Length 5000
+        public async void PostCreateShouldFailValidation6()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidPost = new CreatePost();
+
+            invalidPost.Title = "Good Title";
+            invalidPost.Content = Faker.Lorem.Sentence(5001);
+
+            var post = await CreatePost(client, invalidPost);
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
+        }
+
+        [Fact]
+        //Blog can not be null.
+        public async void PostCreateShouldFailValidation7()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidPost = new CreatePost();
+
+            invalidPost.Title = "Good Title";
+            invalidPost.BlogID = null;
+
+            var post = await CreatePost(client, invalidPost);
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
+        }
+        [Fact]
+        //Blog can not be invalid
+        public async void PostCreateShouldFailValidation8()
+        {
+            //Arrange
+            var client = ApplicationFactory.CreateDefaultClient();
+
+            //Act
+            var invalidPost = new CreatePost();
+
+            invalidPost.Title = "Good Title";
+            invalidPost.BlogID = Guid.NewGuid().ToString();
+
+            var post = await CreatePost(client, invalidPost);
+            //Assert
+            Assert.False(post.IsSuccessStatusCode);
+        }
+
+        [Fact]
         public async void PostShouldModifySuccessfully()
         {
             //Arrange
