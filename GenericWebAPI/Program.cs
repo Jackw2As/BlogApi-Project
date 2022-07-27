@@ -37,20 +37,20 @@ public class Program : IDisposable
                 options.EnableSensitiveDataLogging(true);
             });
 
-        builder.Services.AddTransient<IRepository<Blog>, InMemoryRepository<Blog>>(
+        builder.Services.AddScoped<IRepository<Blog>, InMemoryRepository<Blog>>(
             (provider) =>
             {
                 var context = provider.GetRequiredService<InMemoryDBContext>();
                 return new InMemoryRepository<Blog>(context);
             });
-        builder.Services.AddTransient<IRepository<Post>, InMemoryRepository<Post>>(
+        builder.Services.AddScoped<IRepository<Post>, InMemoryRepository<Post>>(
             provider =>
             {
                 var context = provider.GetRequiredService<InMemoryDBContext>();
                 return new InMemoryRepository<Post>(context);
             });
 
-        builder.Services.AddTransient<IRepository<Comment>, InMemoryRepository<Comment>>(
+        builder.Services.AddScoped<IRepository<Comment>, InMemoryRepository<Comment>>(
             provider =>
             {
                 var context = provider.GetRequiredService<InMemoryDBContext>();
