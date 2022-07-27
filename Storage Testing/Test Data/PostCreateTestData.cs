@@ -7,17 +7,23 @@ public class PostCreateTestData : IEnumerable<object[]>
 {
     public IEnumerator<object[]> GetEnumerator()
     {
-        //Name Minimuim Length 4
-        yield return new object[] { new CreateBlog("123") };
+        //Title Minimuim Length 3
+        yield return new object[] { new CreatePost("12", "", (string)null, null) };
 
-        //Name Maximum Length 24
-        yield return new object[] { new CreateBlog(Faker.Lorem.Sentence(25)) };
+        //Title Max Length 100
+        yield return new object[] { new CreatePost(Faker.Lorem.Sentence(101), "", (string)null, null) };
 
-        //Summary Maximum Length 300
-        yield return new object[] { new CreateBlog("Good Name", Faker.Lorem.Sentence(301)) };
+        //Summary Maximum Length 255
+        yield return new object[] { new CreateBlog("Good Title", Faker.Lorem.Sentence(256)) };
 
         //Summary Minimum Length 1
-        yield return new object[] { new CreateBlog("Good Name", "") };
+        yield return new object[] { new CreateBlog("Good Title", "") };
+
+        //Content can't be null
+        yield return new object[] { new CreateBlog("Good Title", null) };
+
+        //Content Max Length 5000
+        yield return new object[] { new CreateBlog("Good Title", Faker.Lorem.Sentence(5001)) };
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

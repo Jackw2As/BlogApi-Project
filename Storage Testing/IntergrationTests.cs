@@ -435,73 +435,6 @@ public class ModelValidationTests : BaseIntergrationTests
         //Assert
         Assert.False(response.IsSuccessStatusCode);
     }
-
-    [Fact]
-    //Name too short (min 4)
-    public async void BlogModifyShouldFailValidation()
-    {
-        //Arrange
-        var client = ApplicationFactory.CreateDefaultClient();
-        var blog = await CreateBlog(client);
-        Assert.NotNull(blog);
-
-        //Act
-        var invalidBlog = new CreateBlog();
-        invalidBlog.Name = "123";
-        var response = await CreateBlog(client, invalidBlog);
-        //Assert
-        Assert.False(response.IsSuccessStatusCode);
-    }
-    [Fact]
-    //Name too long (max 24)
-    public async void BlogModifyShouldFailValidation2()
-    {
-        //Arrange
-        var client = ApplicationFactory.CreateDefaultClient();
-        var blog = await CreateBlog(client);
-        Assert.NotNull(blog);
-
-        //Act
-        var invalidBlog = new CreateBlog();
-        invalidBlog.Name = Faker.Lorem.Sentence(25);
-        var response = await CreateBlog(client, invalidBlog);
-        //Assert
-        Assert.False(response.IsSuccessStatusCode);
-    }
-    [Fact]
-    //Summary Minimum Length 1
-    public async void BlogModifyShouldFailValidation3()
-    {
-        //Arrange
-        var client = ApplicationFactory.CreateDefaultClient();
-        var blog = await CreateBlog(client);
-        Assert.NotNull(blog);
-
-        //Act
-        var invalidBlog = new CreateBlog();
-        invalidBlog.Name = "Good Name";
-        invalidBlog.Summary = "";
-        var response = await CreateBlog(client, invalidBlog);
-        //Assert
-        Assert.False(response.IsSuccessStatusCode);
-    }
-    [Fact]
-    //Summary too long(max length 300)
-    public async void BlogModifyShouldFailValidation4()
-    {
-        //Arrange
-        var client = ApplicationFactory.CreateDefaultClient();
-        var blog = await CreateBlog(client);
-        Assert.NotNull(blog);
-
-        //Act
-        var invalidBlog = new CreateBlog();
-        invalidBlog.Name = "Good Name";
-        invalidBlog.Summary = Faker.Lorem.Sentence(301); ;
-        var response = await CreateBlog(client, invalidBlog);
-        //Assert
-        Assert.False(response.IsSuccessStatusCode);
-    }
     #endregion
 
     #region Post Models Tests
@@ -533,109 +466,8 @@ public class ModelValidationTests : BaseIntergrationTests
     }
 
     [Fact]
-    //Title Minimuim Length 3
-    public async void PostCreateShouldFailValidation()
-    {
-        //Arrange
-        var client = ApplicationFactory.CreateDefaultClient();
-
-        //Act
-        var invalidPost = new CreatePost();
-
-        invalidPost.Title = "12";
-        var post = await CreatePost(client, invalidPost);
-        //Assert
-        Assert.False(post.IsSuccessStatusCode);
-    }
-
-    [Fact]
-    //Title Max Length 100
-    public async void PostCreateShouldFailValidation2()
-    {
-        //Arrange
-        var client = ApplicationFactory.CreateDefaultClient();
-
-        //Act
-        var invalidPost = new CreatePost();
-
-        invalidPost.Title = Faker.Lorem.Sentence(101);
-        var post = await CreatePost(client, invalidPost);
-        //Assert
-        Assert.False(post.IsSuccessStatusCode);
-    }
-    [Fact]
-    //Summary Min Length 1
-    public async void PostCreateShouldFailValidation3()
-    {
-        //Arrange
-        var client = ApplicationFactory.CreateDefaultClient();
-
-        //Act
-        var invalidPost = new CreatePost();
-
-        invalidPost.Title = "Good Title";
-        invalidPost.Summary = "";
-        var post = await CreatePost(client, invalidPost);
-
-        //Assert
-        Assert.False(post.IsSuccessStatusCode);
-    }
-    [Fact]
-    //Summary Max Length 255
-    public async void PostCreateShouldFailValidation4()
-    {
-        //Arrange
-        var client = ApplicationFactory.CreateDefaultClient();
-
-        //Act
-        var invalidPost = new CreatePost();
-
-        invalidPost.Title = "Good Title";
-        invalidPost.Summary = Faker.Lorem.Sentence(256);
-
-        var post = await CreatePost(client, invalidPost);
-        //Assert
-        Assert.False(post.IsSuccessStatusCode);
-    }
-    [Fact]
-    //Content can't be null
-    public async void PostCreateShouldFailValidation5()
-    {
-        //Arrange
-        var client = ApplicationFactory.CreateDefaultClient();
-
-        //Act
-        var invalidPost = new CreatePost();
-
-        invalidPost.Title = "Good Title";
-        invalidPost.Content = null;
-
-        var post = await CreatePost(client, invalidPost);
-        //Assert
-        Assert.False(post.IsSuccessStatusCode);
-    }
-
-    [Fact]
-    //Content Max Length 5000
-    public async void PostCreateShouldFailValidation6()
-    {
-        //Arrange
-        var client = ApplicationFactory.CreateDefaultClient();
-
-        //Act
-        var invalidPost = new CreatePost();
-
-        invalidPost.Title = "Good Title";
-        invalidPost.Content = Faker.Lorem.Sentence(5001);
-
-        var post = await CreatePost(client, invalidPost);
-        //Assert
-        Assert.False(post.IsSuccessStatusCode);
-    }
-
-    [Fact]
     //Blog can not be null.
-    public async void PostCreateShouldFailValidation7()
+    public async void PostCreateShouldFailValidation2()
     {
         //Arrange
         var client = ApplicationFactory.CreateDefaultClient();
@@ -652,7 +484,7 @@ public class ModelValidationTests : BaseIntergrationTests
     }
     [Fact]
     //Blog can not be invalid
-    public async void PostCreateShouldFailValidation8()
+    public async void PostCreateShouldFailValidation3()
     {
         //Arrange
         var client = ApplicationFactory.CreateDefaultClient();
