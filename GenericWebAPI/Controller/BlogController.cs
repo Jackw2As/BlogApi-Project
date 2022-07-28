@@ -1,4 +1,5 @@
-﻿using BlogAPI.Application.ApiModels;
+﻿using Application.Controller;
+using BlogAPI.Application.ApiModels;
 using BlogAPI.Storage.DatabaseModels;
 using Domain.ActionResults;
 using Domain.Base;
@@ -18,17 +19,17 @@ public class BlogController : BaseController<Blog>
     }
 
     [HttpPost]
-    public ActionResult<Blog> Post([FromBody] CreateBlog model)
+    public ObjectResult Post([FromBody] CreateBlog model)
     {
         Blog blog = createBlog(model);
         return base.Post(blog);
     }
 
     [HttpGet]
-    public ActionResult<GetBlog> GetById([FromQuery] string id)
+    public ObjectResult GetById([FromQuery] string id)
     {
         var result = base.GetById(id);
-        var blog = (result.Result as ObjectResult).Value as Blog;
+        var blog = result.Value as Blog;
 
         if (blog == null)
         {
@@ -39,7 +40,7 @@ public class BlogController : BaseController<Blog>
     }
 
     [HttpGet("List")]
-    public ActionResult<List<GetBlog>> GetAll()
+    public ObjectResult GetAll()
     {
         var blogs = Repository.GetByQuery(blog => true);
 
@@ -52,28 +53,32 @@ public class BlogController : BaseController<Blog>
     }
 
     [HttpPost("Update")]
-    public ActionResult<Blog> Modify(ModifyBlog model)
+    public ObjectResult Modify(ModifyBlog model)
     {
         Blog blog = modifyBlog(model);
         return base.Post(blog);
     }
 
     [HttpDelete]
-    public ActionResult Delete([FromQuery] Guid id)
+    public StatusCodeResult Delete([FromQuery] Guid id)
     {
         if (!Repository.Exists(id.ToString()))
         {
-            ModelState.AddModelError(nameof(id), "id is invalid");
-            return new BadRequestObjectResult(ModelState);
+            return new NotFoundResult();
         }
 
         var blog = Repository.GetByID(id.ToString());
 
-        //Delete Posts in blog
-        var results = deletePosts(blog);
-        if(!results)
+        //Delete Posts
+        var postController = new PostController(PostRepository, CommentRepository, Repository);
+        var posts = postController.GetAll(Guid.Parse(blog.ID)).Value as List<GetPost>;
+        foreach (var post in posts)
         {
-            return new ServerError($"Unable to delete post. Try deleting posts before deleting blog");
+            var results = postController.Delete(Guid.Parse(post.ID));
+            if (results.StatusCode != 200)
+            {
+                return results;
+            }
         }
 
         //Delete Blog
@@ -82,52 +87,7 @@ public class BlogController : BaseController<Blog>
 
         //Save any changes made(aka removed comments deleted)
         Repository.Modify(blog);
-        return new ServerError($"Unable to delete id = {id}.");
-    }
-
-    private bool deleteComments(string postId, Post post)
-    {
-        foreach (var (comment, result) in
-            from comment in PostRepository.GetByID(postId).CommentIds
-            let result = CommentRepository.Delete(comment)
-            select (comment, result))
-        {
-            if (!result)
-            {
-                //Save any changes made(aka removed comments deleted)
-                PostRepository.Modify(post);
-                return false;
-            }
-            post.CommentIds.Remove(comment);
-        }
-        return true;
-    }
-
-    private bool deletePosts(Blog blog)
-    {
-        foreach (var (postId, post) in
-        from postId in blog.PostIds
-        let post = PostRepository.GetByID(postId.ToString())
-        select (postId, post))
-        {
-            //delete commments in post
-            var results = deleteComments(postId, post);
-            if (!results)
-            {
-                return false;
-            }
-
-            var result2 = PostRepository.Delete(postId);
-            if (!result2)
-            {
-                //Save any changes made(aka remove reference to posts deleted)
-                Repository.Modify(blog);
-                return false;
-            }
-
-            blog.PostIds.Clear();
-        }
-        return true;
+        return new NotFoundResult();
     }
 
     #region helpers

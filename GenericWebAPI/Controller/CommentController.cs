@@ -35,10 +35,10 @@ public class CommentController : BaseController<Comment>
     }
 
     [HttpGet]
-    public ActionResult<GetComment> GetById([FromQuery]Guid id)
+    public ObjectResult GetById([FromQuery]Guid id)
     {
         var result = base.GetById(id.ToString());
-        var comment = (result.Result as ObjectResult).Value as Comment;
+        var comment = result.Value as Comment;
         if (comment == null)
         {
             return new NotFoundObjectResult(comment);
@@ -53,7 +53,7 @@ public class CommentController : BaseController<Comment>
     }
 
     [HttpGet("List")]
-    public ActionResult<List<GetComment>> GetAll([FromQuery] Guid PostId)
+    public ObjectResult GetAll([FromQuery] Guid PostId)
     {
         try
         {
@@ -75,19 +75,19 @@ public class CommentController : BaseController<Comment>
     }
 
     [HttpPost("Update")]
-    public ActionResult<Comment> Modify(ModifyComment model)
+    public ObjectResult Modify(ModifyComment model)
     {
         Comment comment = modifyComment(model);
         return base.Post(comment);
     }
 
     [HttpDelete]
-    public ActionResult Delete([FromQuery] Guid id)
+    public StatusCodeResult Delete([FromQuery] Guid id)
     {
         if (!Repository.Exists(id.ToString()))
         {
             ModelState.AddModelError(nameof(id), "id is invalid");
-            return new BadRequestObjectResult(ModelState);
+            return BadRequest();
         }
 
         RemovePostFromComment(id);
@@ -100,7 +100,7 @@ public class CommentController : BaseController<Comment>
         }
 
         //Save any changes made(aka removed comments deleted)
-        return new ServerError($"Unable to delete id = {id}.");
+        return new StatusCodeResult(500);
     }
 
     private void RemovePostFromComment(Guid id)

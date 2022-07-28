@@ -17,7 +17,7 @@ namespace Domain.Base
 
         //Returns a Specific Model
         [HttpGet(Order = 100)]
-        internal protected virtual ActionResult<T> GetById(string Id)
+        internal protected virtual ObjectResult GetById(string Id)
         {
             if(!Repository.Exists(Id))
             {
@@ -32,7 +32,7 @@ namespace Domain.Base
         [HttpPost(Order = 100)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        internal protected virtual ActionResult<T> Post(T model)
+        internal protected virtual ObjectResult Post(T model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -60,18 +60,18 @@ namespace Domain.Base
 
         //Deletes a Model.
         [HttpDelete(Order = 100)]
-        internal protected virtual ActionResult Delete(string Id)
+        internal protected virtual StatusCodeResult Delete(string Id)
         {
             if(!Repository.Exists(Id))
             {
-                return NotFound(Id);
+                return new NotFoundResult();
             }
             var result = Repository.Delete(Id);
             if(result)
             {
                 return Ok();
             }
-            return new ServerError("Could not be deleted by Storage for some reason");
+            return new StatusCodeResult(500);
         }
     }
 }

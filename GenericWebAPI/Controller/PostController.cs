@@ -24,7 +24,7 @@ namespace Application.Controller
         }
 
         [HttpPost()]
-        public ActionResult<Post> Post([FromBody] CreatePost model)
+        public ObjectResult Post([FromBody] CreatePost model)
         {
             if (!BlogRepository.Exists(model.BlogID))
             {
@@ -37,20 +37,20 @@ namespace Application.Controller
         }
 
         [HttpGet()]
-        public ActionResult<GetPost> GetById([FromQuery] Guid id)
+        public ObjectResult GetById([FromQuery] Guid id)
         {
             var result = base.GetById(id.ToString());
 
-            var post = (result.Result as ObjectResult).Value as Post;
+            var post = result.Value as Post;
             if (post == null)
             {
                 return new NotFoundObjectResult(post);
             }
-            return new(new GetPost(post));
+            return new OkObjectResult(new GetPost(post));
         }
 
         [HttpGet("List")]
-        public ActionResult<List<GetPost>> GetAll([FromQuery] Guid BlogId)
+        public ObjectResult GetAll([FromQuery] Guid BlogId)
         {
             try
             {
@@ -68,23 +68,23 @@ namespace Application.Controller
                 getPosts.Add(new GetPost(post));
             }
 
-            return new ObjectResult(getPosts);
+            return new OkObjectResult(getPosts);
         }
 
         [HttpPost("Update")]
-        public ActionResult<Post> Modify(ModifyPost model)
+        public ObjectResult Modify(ModifyPost model)
         {
             Post post = modifyPost(model);
             return base.Post(post);
         }
 
         [HttpDelete]
-        public ActionResult Delete([FromQuery] Guid id)
+        public StatusCodeResult Delete([FromQuery] Guid id)
         {
             if (!Repository.Exists(id.ToString()))
             {
                 ModelState.AddModelError(nameof(id), "id is invalid");
-                return new BadRequestObjectResult(ModelState);
+                return new BadRequestResult();
             }
 
             var post = Repository.GetByID(id.ToString());
@@ -92,7 +92,7 @@ namespace Application.Controller
             var results = DeleteComments(post);
             if (!results)
             {
-                return new ServerError($"Unable to delete comment. Try deleting comment before deleting post!");
+                return new BadRequestResult();
             }
 
             //Delete Post References
@@ -100,11 +100,11 @@ namespace Application.Controller
 
             //Delete Post
             var success = Repository.Delete(id.ToString());
-            if (success) return Ok();
+            if (success) return new OkResult();
 
             //Save any changes made(aka removed comments deleted)
             Repository.Modify(post);
-            return new ServerError($"Unable to delete id = {id}.");
+            return new BadRequestResult();
         }
 
         private void RemoveThisPostFromBlogs(Post post)
