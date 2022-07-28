@@ -57,7 +57,6 @@ public static class SeedData
                 };
 
                 collection.Add(comment);
-                post.CommentIds.Append(comment.ID.ToString());
                 count += 1;
             }
         }
@@ -88,7 +87,6 @@ public static class SeedData
                 post.DateModified.Subtract(new TimeSpan(rand.Next(100), rand.Next(24), rand.Next(60), rand.Next(50)));
 
                 collection.Add(post);
-                blog.PostIds.Append(post.ID.ToString());
                 count += 1;
             }
         }

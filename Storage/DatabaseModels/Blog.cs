@@ -13,8 +13,6 @@ namespace BlogAPI.Storage.DatabaseModels
         [StringLength(300, MinimumLength = 1)]
         public string Summary { get; set; }
 
-        public List<string> PostIds { get; set; } = new();
-
         public Blog()
         {
             Name = "Enter Name Here!";

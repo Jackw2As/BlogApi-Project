@@ -22,11 +22,8 @@ namespace BlogAPI.Storage.DatabaseModels
         [Required]
         public string BlogId { get; set; }
 
-        public List<string> CommentIds { get; set; } = new();
-
         public Post()
         {
-            CommentIds = new List<string>();
             Title = String.Empty;
             Content = String.Empty;
             BlogId = String.Empty;

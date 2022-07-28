@@ -1,4 +1,5 @@
 ﻿using BlogAPI.Application.ApiModels;
+using BlogAPI.Application.Controller;
 using BlogAPI.Storage.DatabaseModels;
 using Domain.ActionResults;
 using Domain.Base;
@@ -89,14 +90,16 @@ namespace Application.Controller
 
             var post = Repository.GetByID(id.ToString());
 
-            var results = DeleteComments(post);
-            if (!results)
+            var commentController = new CommentController(CommentRepository, Repository, BlogRepository);
+            var comments = commentController.GetAll(id).Value as List<GetComment>;
+            foreach (var comment in comments)
             {
-                return new BadRequestResult();
+                var result = commentController.Delete(Guid.Parse(comment.ID));
+                if(result.StatusCode is not 200)
+                {
+                    return result;
+                }
             }
-
-            //Delete Post References
-            RemoveThisPostFromBlogs(post);
 
             //Delete Post
             var success = Repository.Delete(id.ToString());
@@ -105,34 +108,6 @@ namespace Application.Controller
             //Save any changes made(aka removed comments deleted)
             Repository.Modify(post);
             return new BadRequestResult();
-        }
-
-        private void RemoveThisPostFromBlogs(Post post)
-        {
-            var blogs = BlogRepository.GetByQuery(blog => blog.PostIds.Contains(post.ID));
-            foreach (var blog in blogs)
-            {
-                blog.PostIds.Remove(post.ID);
-                BlogRepository.Modify(blog);
-            }
-        }
-
-        private bool DeleteComments(Post post)
-        {
-            foreach (var (comment, result) in
-           from comment in post.CommentIds
-           let result = CommentRepository.Delete(comment)
-           select (comment, result))
-            {
-                if (!result)
-                {
-                    //Save any changes made(aka removed comments deleted)
-                    Repository.Modify(post);
-                    return false;
-                }
-                post.CommentIds.Remove(comment);
-            }
-            return true;
         }
 
         #region helper

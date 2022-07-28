@@ -90,10 +90,7 @@ public class CommentController : BaseController<Comment>
             return BadRequest();
         }
 
-        RemovePostFromComment(id);
-
         var success = Repository.Delete(id.ToString());
-
         if (success)
         {
             return Ok();
@@ -101,19 +98,6 @@ public class CommentController : BaseController<Comment>
 
         //Save any changes made(aka removed comments deleted)
         return new StatusCodeResult(500);
-    }
-
-    private void RemovePostFromComment(Guid id)
-    {
-        var posts = PostRepository.GetByQuery(post => post.CommentIds.Contains(id.ToString()));
-        if (posts.Any())
-        {
-            foreach (var post in posts)
-            {
-                post.CommentIds.Remove(id.ToString());
-                PostRepository.Modify(post);
-            }
-        }
     }
 
     #region Helper

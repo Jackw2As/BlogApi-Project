@@ -26,16 +26,12 @@ public class InMemoryDBContext : DbContext
         {
             entity.ToTable("Blogs");
             entity.HasKey("ID");
-
-            entity.Property(e => e.PostIds).HasConversion(new IEnumerableGuidToString());
         });
 
         modelBuilder.Entity<Post>(entity =>
         {
             entity.ToTable("Posts");
             entity.HasKey("ID");
-
-            entity.Property(e => e.CommentIds).HasConversion(new IEnumerableGuidToString());
         });
 
         modelBuilder.Entity<Comment>(entity =>

@@ -24,7 +24,7 @@ public class BaseControllerUnitTests
         var result = Controller.Post(model);
         //Assert
         Assert.IsType<ActionResult<MockBaseObject>>(result);
-        Assert.Equal(model, ((ObjectResult)result.Result).Value);
+        Assert.Equal(model, result.Value);
 
         var repo = Controller.GetRepository();
         Assert.True(repo.Exists(model));
@@ -39,12 +39,10 @@ public class BaseControllerUnitTests
 
         //Act
         Controller.ModelState.AddModelError("", "Test");
-        var result = Controller.Post(model);
+        var objectResult = Controller.Post(model);
 
         //Assert
-        var objectResult = result.Result as ObjectResult;
-
-        var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
+        var badRequest = Assert.IsType<BadRequestObjectResult>(objectResult);
         Assert.True(badRequest.StatusCode == 400);
         Assert.IsType<SerializableError>(badRequest.Value);
 
@@ -68,7 +66,7 @@ public class BaseControllerUnitTests
 
         //Assert
         Assert.NotNull(result);
-        var objectResult = Assert.IsType<OkObjectResult>(result.Result);
+        var objectResult = Assert.IsType<OkObjectResult>(result);
         Assert.StrictEqual(item, objectResult.Value);
     }
 
@@ -85,7 +83,7 @@ public class BaseControllerUnitTests
 
         //Assert
         Assert.NotNull(result);
-        var objectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+        var objectResult = Assert.IsType<NotFoundObjectResult>(result);
         Assert.StrictEqual(id, objectResult.Value);
     }
     #endregion
@@ -108,7 +106,7 @@ public class BaseControllerUnitTests
 
         //Assert
         Assert.IsType<ActionResult<MockBaseObject>>(result);
-        Assert.Equal(item, ((ObjectResult)result.Result).Value);
+        Assert.Equal(item, result.Value);
 
         var repo = controller.GetRepository();
         Assert.True(repo.Exists(item));
