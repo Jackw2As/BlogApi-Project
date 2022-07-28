@@ -25,7 +25,7 @@ namespace BlogAPI.Application.ApiModels
         {
             Username = username;
             Content = content;
-            PostId = post.ID;
+            PostId = post?.ID ?? String.Empty;
         } 
     }
 }
