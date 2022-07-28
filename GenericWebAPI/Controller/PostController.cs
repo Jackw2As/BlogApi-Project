@@ -33,7 +33,10 @@ namespace Application.Controller
                 return new BadRequestObjectResult(ModelState);
             }
             var post = CreatePost(model);
-
+            if (!TryValidateModel(post))
+            {
+                return BadRequest(ModelState);
+            }
             return base.Post(post);
         }
 
@@ -76,6 +79,10 @@ namespace Application.Controller
         public ObjectResult Modify(ModifyPost model)
         {
             Post post = modifyPost(model);
+            if (!TryValidateModel(post))
+            {
+                return BadRequest(ModelState);
+            }
             return base.Post(post);
         }
 

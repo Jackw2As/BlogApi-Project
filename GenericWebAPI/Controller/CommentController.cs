@@ -27,10 +27,13 @@ public class CommentController : BaseController<Comment>
         if (!PostRepository.Exists(model.PostId))
         {
             ModelState.AddModelError(nameof(model.PostId), "Post ID is invalid. Couldn't find the Post you are commenting on!");
-            return new BadRequestObjectResult(ModelState);
+            return BadRequest(ModelState);
         }
         Comment comment = createComment(model);
-
+        if (!TryValidateModel(comment))
+        {
+            return BadRequest(ModelState);
+        }
         return base.Post(comment);
     }
 
@@ -78,6 +81,10 @@ public class CommentController : BaseController<Comment>
     public ObjectResult Modify(ModifyComment model)
     {
         Comment comment = modifyComment(model);
+        if (!TryValidateModel(comment))
+        {
+            return BadRequest(ModelState);
+        }
         return base.Post(comment);
     }
 

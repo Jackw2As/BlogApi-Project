@@ -22,6 +22,11 @@ public class BlogController : BaseController<Blog>
     public ObjectResult Post([FromBody] CreateBlog model)
     {
         Blog blog = createBlog(model);
+        if(!TryValidateModel(blog))
+        {
+            return BadRequest(ModelState);
+        }
+
         return base.Post(blog);
     }
 
@@ -56,6 +61,10 @@ public class BlogController : BaseController<Blog>
     public ObjectResult Modify(ModifyBlog model)
     {
         Blog blog = modifyBlog(model);
+        if (!TryValidateModel(blog))
+        {
+            return BadRequest(ModelState);
+        }
         return base.Post(blog);
     }
 
