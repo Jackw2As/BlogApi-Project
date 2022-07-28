@@ -47,7 +47,7 @@ namespace Domain.Base
                     Repository.Save(model);
                 }
 
-                return new ObjectResult(model);
+                return CreatedAtAction($"GetById", new { id = model.ID }, model);
             }
             catch(Exception ex)
             {

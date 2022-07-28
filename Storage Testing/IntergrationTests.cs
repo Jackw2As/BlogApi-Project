@@ -59,7 +59,7 @@ public class IntergrationTests : BaseIntergrationTests
     }
 
     [Fact]
-    public async void ShouldPostACommentOnAnExistingBlog()
+    public async void ShouldPostACommentOnAnExistingPost()
     {
         //Arrange
         var client = ApplicationFactory.CreateDefaultClient();
