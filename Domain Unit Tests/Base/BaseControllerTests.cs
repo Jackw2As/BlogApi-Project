@@ -23,7 +23,6 @@ public class BaseControllerUnitTests
         //Act
         var result = Controller.Post(model);
         //Assert
-        Assert.IsType<ActionResult<MockBaseObject>>(result);
         Assert.Equal(model, result.Value);
 
         var repo = Controller.GetRepository();
@@ -105,7 +104,6 @@ public class BaseControllerUnitTests
         var result = controller.Post(item);
 
         //Assert
-        Assert.IsType<ActionResult<MockBaseObject>>(result);
         Assert.Equal(item, result.Value);
 
         var repo = controller.GetRepository();
@@ -152,7 +150,7 @@ public class BaseControllerUnitTests
         var response = controller.Delete(item.ID);
 
         //Assert
-        Assert.IsType<NotFoundObjectResult>(response);
+        Assert.IsType<NotFoundResult>(response);
         Assert.True(testData.Count() == testData.Count());
     }
     #endregion
