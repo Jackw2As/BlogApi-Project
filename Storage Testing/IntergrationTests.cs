@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Web.Http.ModelBinding;
 
 namespace BlogAPI.Application;
-
+[Collection("Intergration")]
 public class IntergrationTests : BaseIntergrationTests
 {
     public IntergrationTests()

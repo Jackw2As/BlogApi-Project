@@ -3,7 +3,7 @@ using BlogAPI.Application.TestData;
 using BlogAPI.Storage.InMemory;
 
 namespace BlogAPI.Application;
-
+[Collection("Intergration")]
 public class ModelValidationTests : BaseIntergrationTests
 {
     #region Blog Models Tests
