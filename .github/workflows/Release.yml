@@ -3,6 +3,8 @@ name: Release
 on:
   push:
     branches: [ "release" ]
+  pull:
+    branches: [ "release" ]
     
 jobs:
   build:
