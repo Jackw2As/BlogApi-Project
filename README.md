@@ -82,7 +82,7 @@ Note: Updating expects different values from creating a post. Thats because this
 
 Also the server automatically updated the DateModified value to reflect the new edited changes. 
 
-##Deleting a Blog/Comment/Post
+## Deleting a Blog/Comment/Post
 Deleting is just as easy as creating new content. In this api everything is hard deleted and can't be retrieved once deleted. Because Comments are apart of Posts, which are apart of Blogs, deleting a Blog will also delete all Posts connected to it. Deleting a Post will also delete its comments. There is no point in the database storing Posts for a blog that no longer exists or comments on Post that no longer exist. 
 
 So an easy way to delete the stuff we just created is to delete the blog. 
