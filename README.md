@@ -1,6 +1,5 @@
 # Blog API Project
 [![master](https://github.com/Jackw2As/BlogApi-Project/actions/workflows/master.yml/badge.svg)](https://github.com/Jackw2As/BlogApi-Project/actions/workflows/master.yml)
-[![Release](https://github.com/Jackw2As/BlogApi-Project/actions/workflows/Release.yml/badge.svg)](https://github.com/Jackw2As/BlogApi-Project/actions/workflows/Release.yml)
 
 ## Summary
 The Blog API project is a simple Blog API without any Authentication support. Built using an SQLite memory as storage the Blog API can provide a backend service to create blogs, posts, and comments for other websites.
