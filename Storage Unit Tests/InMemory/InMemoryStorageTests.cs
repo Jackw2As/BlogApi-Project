@@ -21,7 +21,7 @@ namespace BlogAPI.Storage.InMemory
             _connection.Open();
 
             // These options will be used by the context instances in this test suite, including the connection opened above.
-            _contextOptions = new DbContextOptionsBuilder<InMemoryDBContext>()
+            _contextOptions = new DbContextOptionsBuilder<InMemoryDbContext>()
                 .UseSqlite(_connection)
                 .Options;
 

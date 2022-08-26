@@ -17,7 +17,7 @@ namespace BlogAPI.Storage.InMemory.GuidToString
             List<string> itemList = new();
             itemList.Add(item1);
 
-            var test = new IEnumerableGuidToString();
+            var test = new EnumerableGuidToString();
 
             //Act
             var result1 = test.ConvertToProvider(itemList);
@@ -43,7 +43,7 @@ namespace BlogAPI.Storage.InMemory.GuidToString
             itemList.Add(item4);
             itemList.Add(item5);
 
-            var test = new IEnumerableGuidToString();
+            var test = new EnumerableGuidToString();
 
             //Act
             string result1 = (string)test.ConvertToProvider(itemList);
@@ -65,7 +65,7 @@ namespace BlogAPI.Storage.InMemory.GuidToString
                 itemList.Add(Guid.NewGuid().ToString());
             }
 
-            var test = new IEnumerableGuidToString();
+            var test = new EnumerableGuidToString();
 
             //Act
             var result1 = test.ConvertToProvider(itemList);
@@ -83,7 +83,7 @@ namespace BlogAPI.Storage.InMemory.GuidToString
             List<string> itemList = new();
             itemList.Add(item1);
 
-            var test = new IEnumerableGuidToString();
+            var test = new EnumerableGuidToString();
 
             //Act
             var result1 = test.ConvertToProvider(itemList);

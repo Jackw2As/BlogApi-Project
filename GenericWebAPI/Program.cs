@@ -30,7 +30,7 @@ public class Program : IDisposable
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddDbContext<InMemoryDBContext>(
+        builder.Services.AddDbContext<InMemoryDbContext>(
             options =>
             {
                 options.UseSqlite(_connection);
@@ -40,20 +40,20 @@ public class Program : IDisposable
         builder.Services.AddScoped<IRepository<Blog>, InMemoryRepository<Blog>>(
             (provider) =>
             {
-                var context = provider.GetRequiredService<InMemoryDBContext>();
+                var context = provider.GetRequiredService<InMemoryDbContext>();
                 return new InMemoryRepository<Blog>(context);
             });
         builder.Services.AddScoped<IRepository<Post>, InMemoryRepository<Post>>(
             provider =>
             {
-                var context = provider.GetRequiredService<InMemoryDBContext>();
+                var context = provider.GetRequiredService<InMemoryDbContext>();
                 return new InMemoryRepository<Post>(context);
             });
 
         builder.Services.AddScoped<IRepository<Comment>, InMemoryRepository<Comment>>(
             provider =>
             {
-                var context = provider.GetRequiredService<InMemoryDBContext>();
+                var context = provider.GetRequiredService<InMemoryDbContext>();
                 return new InMemoryRepository<Comment>(context);
             });
 

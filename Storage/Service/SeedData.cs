@@ -4,11 +4,11 @@ using BlogAPI.Storage.InMemory;
 public static class SeedData
 {
 
-    private static bool MethodAlreadyCalled = false;
+    private static bool _methodAlreadyCalled = false;
 
-    public static void SeedDatabase(InMemoryDBContext context)
+    public static void SeedDatabase(InMemoryDbContext context)
     {
-        if (MethodAlreadyCalled) return;
+        if (_methodAlreadyCalled) return;
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
@@ -17,7 +17,7 @@ public static class SeedData
 
         context.SaveChanges();
 
-        MethodAlreadyCalled = true;
+        _methodAlreadyCalled = true;
     }
     private static IEnumerable<object> CreateSeedData()
     {
@@ -45,14 +45,14 @@ public static class SeedData
             int count = 0;
             while (count < maxCount)
             {
-                var DateCreatedOffset = new TimeSpan(rand.Next(24), rand.Next(60), rand.Next(60));
+                var dateCreatedOffset = new TimeSpan(rand.Next(24), rand.Next(60), rand.Next(60));
 
                 var comment = new Comment()
                 {
                     Username = Faker.Internet.UserName(),
                     PostId = post.ID.ToString(),
                     Content = Faker.Lorem.Paragraph(2),
-                    DateCreated = post.DateCreated.Add(DateCreatedOffset),
+                    DateCreated = post.DateCreated.Add(dateCreatedOffset),
                     ID = Guid.NewGuid().ToString()
                 };
 

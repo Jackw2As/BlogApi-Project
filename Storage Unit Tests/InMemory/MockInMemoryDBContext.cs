@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlogAPI.Storage.InMemory
 {
-    public class MockInMemoryDBContext : InMemoryDBContext
+    public class MockInMemoryDBContext : InMemoryDbContext
     {
         public DbSet<MockDatabaseObject> MockDatabaseObject { get; set; }
 

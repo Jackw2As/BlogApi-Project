@@ -10,7 +10,7 @@ namespace BlogAPI.Storage.DatabaseModels
             ID = Guid.NewGuid().ToString();
         }
 
-        public DataObject(Guid ID) : base(ID)
+        public DataObject(Guid id) : base(id)
         {
 
         }
