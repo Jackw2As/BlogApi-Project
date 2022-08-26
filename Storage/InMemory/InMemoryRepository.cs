@@ -1,108 +1,87 @@
-﻿using BlogAPI.Storage.DatabaseModels;
+﻿using System.Collections.ObjectModel;
+using BlogAPI.Storage.DatabaseModels;
 using Domain.Interface;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlogAPI.Storage.InMemory
 {
     public class InMemoryRepository<T> : IRepository<T> where T : DataObject
     {
-        protected readonly InMemoryDBContext _dbContext;
-        public InMemoryRepository(InMemoryDBContext dbContext, bool seedDatabase = true)
+        protected readonly InMemoryDbContext DbContext;
+        public InMemoryRepository(InMemoryDbContext dbContext, bool seedDatabase = true)
         {
-            _dbContext = dbContext;
-
-            if(seedDatabase)
-            SeedData.SeedDatabase(_dbContext);
+            DbContext = dbContext;
+            if(seedDatabase) SeedData.SeedDatabase(DbContext);
         }
 
-        public bool Delete(string Id)
+        public bool Delete(string id)
         {
-            var DbSet = _dbContext.Set<T>();
-            if (Exists(Id))
-            {
-                DbSet.Remove(GetByID(Id));
-                _dbContext.SaveChanges();
-                return true;
-            }
+            var dbSet = DbContext.Set<T>();
+            //Don't attempt Deleting unless it exists in the database.
+            if (!Exists(id)) return false;
+            
+            dbSet.Remove(GetByID(id));
+            DbContext.SaveChanges();
+            
+            //Validation check to ensure data is deleted. Expected result is null. 
+            var entity = dbSet.Find(id);
+            if (entity == null) return true;
             return false;
         }
 
-        public bool Exists(string Id)
+        public bool Exists(string id)
         {
-            var DbSet = _dbContext.Set<T>();
+            var dbSet = DbContext.Set<T>();
 
-            if (DbSet.Where(p => p.ID == Id).Any())
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public bool Exists(T Model)
-        {
-            var DbSet = _dbContext.Set<T>();
-            if (DbSet.Where(p => p == Model).Any())
+            if (dbSet.Any(p => p.ID == id))
             {
                 return true;
             }
             return false;
+        }
+
+        public bool Exists(T model)
+        {
+            var dbSet = DbContext.Set<T>();
+            return dbSet.Any(dataObject => dataObject == model);
         }
 
         public bool Exists(Func<T, bool> query)
         {
-            var DbSet = _dbContext.Set<T>();
-            if (DbSet.Where(query).Any())
-            {
-                return true;
-            }
-            return false;
+            var dbSet = DbContext.Set<T>();
+            return dbSet.Any(query);
         }
 
-        public T GetByID(string Id)
+        public T GetByID(string id)
         {
-            var DbSet = _dbContext.Set<T>();
-            
-            var model = DbSet.Find(Id);
+            var model = DbContext.Set<T>().Find(id);
             if (model == null)
             {
-                throw new ArgumentException($"{Id} isn't a valid ID. Entity couldn't be found!");
+                throw new ArgumentException($"{id} isn't a valid ID. Entity couldn't be found!");
             }
             return model;
         }
 
         public IEnumerable<T> GetByQuery(Func<T, bool> query)
         {
-            var collection = _dbContext.Set<T>().Where(query);
-            return collection;
+            return DbContext.Set<T>().Where(query);
         }
 
         public bool Modify(T model)
         {
-            if(Exists(model))
-            {
-                var dbSet = _dbContext.Set<T>();
-                dbSet.Update(model);
-                _dbContext.SaveChanges();
-                return true;
-            }
-            return false;
+            //Check to make sure the object exists in database before trying to update.
+            if (!Exists(model)) return false;
+            DbContext.Set<T>().Update(model);
+            DbContext.SaveChanges();
+            return true;
         }
 
         public bool Save(T model)
         {
-            var dbSet = _dbContext.Set<T>();
-            if (!Exists(model))
-            {
-                dbSet.Add(model);
-                _dbContext.SaveChanges();
-                return true;
-            }
-            return false;
+            //We only save if the object does not exist in the database. Otherwise we need to call Modify
+            if (Exists(model)) return false;
+            DbContext.Set<T>().Add(model);
+            DbContext.SaveChanges();
+            return true;
         }
     }
 }
