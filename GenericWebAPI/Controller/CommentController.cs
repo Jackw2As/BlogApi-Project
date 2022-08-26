@@ -6,9 +6,10 @@ using Domain.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogAPI.Application.Controller;
-
 public class CommentController : BaseController<Comment>
 {
+    //TODO: Refactor Each Endpoint into a separate class
+    //TODO: Replace List method with an endpoint such as Blogs/Posts?BlogID="".
     public IRepository<Post> PostRepository { get; }
     public IRepository<Blog> BlogRepository { get; }
 

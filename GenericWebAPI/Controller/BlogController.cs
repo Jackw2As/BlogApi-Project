@@ -1,15 +1,17 @@
-﻿using Application.Controller;
+﻿using System.Net.Mime;
 using BlogAPI.Application.ApiModels;
 using BlogAPI.Storage.DatabaseModels;
 using Domain.ActionResults;
 using Domain.Base;
 using Domain.Interface;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace BlogAPI.Application.Controller;
-
 public class BlogController : BaseController<Blog>
 {
+    //TODO: Refactor Each Endpoint into a separate class
+    //TODO: Replace List method with an endpoint such as Blogs/Posts?BlogID="".
     public IRepository<Post> PostRepository { get; }
     public IRepository<Comment> CommentRepository { get; }
     public BlogController(IRepository<Blog> repository, IRepository<Post> postRepository, IRepository<Comment> commentRepository) : base(repository)
@@ -41,7 +43,7 @@ public class BlogController : BaseController<Blog>
             return new NotFoundObjectResult(blog);
         }
 
-        return new ObjectResult(new GetBlog(blog));
+        return new(new GetBlog(blog));
     }
 
     [HttpGet("List")]
@@ -49,23 +51,20 @@ public class BlogController : BaseController<Blog>
     {
         var blogs = Repository.GetByQuery(blog => true);
 
-        List<GetBlog> getBlogs = new List<GetBlog>();
+        List<GetBlog> getBlogs = new();
         foreach (var blog in blogs)
         {
             getBlogs.Add(new(blog));
         }
-        return new ObjectResult(getBlogs);
+
+        return new(getBlogs);
     }
 
     [HttpPost("Update")]
     public ObjectResult Modify(ModifyBlog model)
     {
-        Blog blog = modifyBlog(model);
-        if (!TryValidateModel(blog))
-        {
-            return BadRequest(ModelState);
-        }
-        return base.Post(blog);
+        var blog = modifyBlog(model);
+        return !TryValidateModel(blog) ? BadRequest(ModelState) : base.Post(blog);
     }
 
     [HttpDelete]
@@ -73,7 +72,7 @@ public class BlogController : BaseController<Blog>
     {
         if (!Repository.Exists(id.ToString()))
         {
-            return new NotFoundResult();
+            return NotFound();
         }
 
         var blog = Repository.GetByID(id.ToString());
@@ -102,7 +101,7 @@ public class BlogController : BaseController<Blog>
     #region helpers
     private static Blog createBlog(CreateBlog model)
     {
-        return new Blog()
+        return new()
         {
             ID = Guid.NewGuid().ToString(),
             Name = model.Name,
