@@ -1,12 +1,11 @@
 ﻿using BlogAPI.Storage.DatabaseModels;
-using BlogAPI.Storage.InMemory;
 using Faker;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogAPI.Storage.Service;
 public static class SeedData
 {
-    public static bool IsDatabaseSeeded = false;
+    public static bool IsDatabaseSeeded;
     public static void SeedDatabase(DbContext context)
     {
         //Ensure Database is created before seeding Data
@@ -74,9 +73,9 @@ public static class SeedData
         Random rand = new Random();
         return new Post()
         {
-            Title = Faker.Name.First(),
+            Title = Name.First(),
             BlogId = blog.ID,
-            Content = Faker.Lorem.Paragraph(2),
+            Content = Lorem.Paragraph(2),
             DateCreated = new DateTime(2012, new Random().Next(1, 13), new Random().Next(1, 28)),
             DateModified = DateTime.UtcNow
                 .Subtract(
@@ -97,8 +96,8 @@ public static class SeedData
         {
             yield return new Blog()
             {
-                Name = Faker.Name.First(),
-                Summary = Faker.Lorem.Sentence(1),
+                Name = Name.First(),
+                Summary = Lorem.Sentence(1),
                 ID = Guid.NewGuid().ToString(),
             };
         }
