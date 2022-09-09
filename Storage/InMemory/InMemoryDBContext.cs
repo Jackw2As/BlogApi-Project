@@ -7,17 +7,12 @@ namespace BlogAPI.Storage.InMemory;
 
 public class InMemoryDbContext : DbContext
 {
-    public DbSet<Blog> Blogs { get; set; }
-    public DbSet<Comment> Comments { get; set; }
-    public DbSet<Post> Posts { get; set; }
+    public DbSet<Blog>? Blogs { get; set; }
+    public DbSet<Comment>? Comments { get; set; }
+    public DbSet<Post>? Posts { get; set; }
 
     public InMemoryDbContext(DbContextOptions options) : base(options)
     {
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,7 +33,6 @@ public class InMemoryDbContext : DbContext
         {
             entity.ToTable("Comments");
             entity.HasKey("ID");
-
         });
 
         base.OnModelCreating(modelBuilder);
