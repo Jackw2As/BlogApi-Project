@@ -1,4 +1,5 @@
 ﻿using BlogAPI.Storage.DatabaseModels;
+using BlogAPI.Storage.Service;
 using Domain.Interface;
 
 namespace BlogAPI.Storage.InMemory
@@ -9,7 +10,7 @@ namespace BlogAPI.Storage.InMemory
         public InMemoryRepository(InMemoryDbContext dbContext, bool seedDatabase = true)
         {
             DbContext = dbContext;
-            if(seedDatabase) SeedData.SeedDatabase(DbContext);
+            if(seedDatabase && !SeedData.IsDatabaseSeeded) SeedData.SeedDatabase(DbContext);
         }
 
         public bool Delete(string id)
