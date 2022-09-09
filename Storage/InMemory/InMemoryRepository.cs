@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using BlogAPI.Storage.DatabaseModels;
+﻿using BlogAPI.Storage.DatabaseModels;
 using Domain.Interface;
 
 namespace BlogAPI.Storage.InMemory
@@ -16,33 +15,25 @@ namespace BlogAPI.Storage.InMemory
         public bool Delete(string id)
         {
             var dbSet = DbContext.Set<T>();
-            //Don't attempt Deleting unless it exists in the database.
+            //Check to see if data exists before deleting.
             if (!Exists(id)) return false;
             
             dbSet.Remove(GetByID(id));
             DbContext.SaveChanges();
             
-            //Validation check to ensure data is deleted. Expected result is null. 
+            //Validation check to ensure data is deleted. Expect null return. 
             var entity = dbSet.Find(id);
-            if (entity == null) return true;
-            return false;
+            return entity == null;
         }
 
         public bool Exists(string id)
         {
-            var dbSet = DbContext.Set<T>();
-
-            if (dbSet.Any(p => p.ID == id))
-            {
-                return true;
-            }
-            return false;
+            return Exists(p => p.ID == id);
         }
 
         public bool Exists(T model)
         {
-            var dbSet = DbContext.Set<T>();
-            return dbSet.Any(dataObject => dataObject == model);
+            return Exists(dataObject => Equals(dataObject, model));
         }
 
         public bool Exists(Func<T, bool> query)
